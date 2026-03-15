@@ -16,7 +16,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
 
-  /* SIDEBAR */
   .sidebar {
     width: 240px; min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border);
     display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50;
@@ -40,10 +39,8 @@
   .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
   .admin-chip { display: flex; align-items: center; gap: 8px; }
   .admin-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--accent); }
-  .admin-info { font-size: 12px; }
   .admin-role { font-size: 10px; color: var(--muted); }
 
-  /* MAIN */
   .main { margin-left: 240px; flex: 1; min-height: 100vh; }
   .topbar {
     position: sticky; top: 0; z-index: 40; background: var(--bg); border-bottom: 1px solid var(--border);
@@ -53,14 +50,11 @@
   .breadcrumb { font-size: 13px; color: var(--muted); }
   .page-title { font-size: 16px; font-weight: 500; }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
-
   .content { padding: 28px; }
 
-  /* PANELS */
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* BUTTONS */
   .btn {
     padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
     border: 1px solid var(--border); background: var(--surface); color: var(--text);
@@ -77,7 +71,6 @@
   .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
   .btn.ghost:hover { background: var(--surface2); color: var(--text); }
 
-  /* STATS GRID */
   .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
   .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
@@ -87,7 +80,6 @@
   .stat-warn { color: var(--warn); }
   .stat-danger { color: var(--danger); }
 
-  /* CARDS GRID */
   .stores-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
   .store-card {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -108,11 +100,7 @@
   .store-footer-stat { font-size: 11px; color: var(--muted); }
   .store-actions { display: flex; gap: 6px; }
 
-  /* BADGES */
-  .badge {
-    display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px;
-    font-size: 11px; font-weight: 500;
-  }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
   .badge.active { background: #00d98b22; color: var(--accent); }
   .badge.suspended { background: #f8717122; color: var(--danger); }
   .badge.expired { background: #fbbf2422; color: var(--warn); }
@@ -121,7 +109,6 @@
   .badge.pro { background: #a78bfa22; color: #a78bfa; }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
-  /* TABLE */
   .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   table { width: 100%; border-collapse: collapse; }
   th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); background: var(--surface2); }
@@ -130,7 +117,6 @@
   tr:hover td { background: var(--surface2); }
   .mono { font-family: var(--mono); font-size: 12px; color: var(--muted); }
 
-  /* ALERTS */
   .alert-item { display: flex; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); align-items: flex-start; }
   .alert-item:last-child { border-bottom: none; }
   .alert-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
@@ -140,25 +126,19 @@
   .alert-msg { font-size: 13px; margin-bottom: 3px; }
   .alert-meta { font-size: 11px; color: var(--muted); }
 
-  /* MODAL */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    width: 92%; max-width: 560px; max-height: 90vh; overflow-y: auto;
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 92%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
   .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
   .modal-title { font-size: 15px; font-weight: 600; }
   .modal-body { padding: 24px; }
   .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
 
-  /* FORM */
   .field { margin-bottom: 18px; }
   .field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 7px; letter-spacing: 0.03em; }
   .field input, .field select, .field textarea {
     width: 100%; padding: 9px 13px; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); font-size: 13px; font-family: var(--font);
-    transition: border-color 0.15s;
+    border-radius: 8px; color: var(--text); font-size: 13px; font-family: var(--font); transition: border-color 0.15s;
   }
   .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
   .field select option { background: var(--surface2); }
@@ -168,14 +148,16 @@
 
   /* LOGIN */
   .login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 999; }
-  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 360px; }
-  .login-logo { margin-bottom: 28px; }
+  .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 380px; }
   .login-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-  .login-sub { font-size: 13px; color: var(--muted); }
-  .login-fields { margin: 24px 0; }
-  .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+  .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+  .login-err { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; padding: 10px 12px; background: #f8717111; border: 1px solid #f8717133; border-radius: 8px; }
 
-  /* DETAIL VIEW */
+  /* URL input en login */
+  .login-url-field { margin-bottom: 20px; padding: 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
+  .login-url-field label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 8px; }
+  .login-url-field input { width: 100%; background: transparent; border: none; color: var(--text); font-size: 12px; font-family: var(--mono); outline: none; }
+
   .store-detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
   .detail-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
   .detail-avatar { width: 48px; height: 48px; border-radius: 12px; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: var(--accent); }
@@ -189,39 +171,30 @@
   .info-item .info-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
   .info-item .info-value { font-size: 14px; font-weight: 500; }
 
-  /* SECTION HEADER */
   .section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .section-title { font-size: 14px; font-weight: 600; }
 
-  /* PROGRESS BAR */
-  .progress-bar { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s; }
-
-  /* EMPTY STATE */
   .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
   .empty svg { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.3; display: block; }
   .empty h3 { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
   .empty p { font-size: 13px; }
 
-  /* LOADER */
   .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; background: var(--surface2); color: var(--muted); font-family: var(--mono); }
-
   .url-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; padding: 9px 13px; font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; justify-content: space-between; gap: 8px; word-break: break-all; }
-
   .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   .text-danger { color: var(--danger); }
   .text-warn { color: var(--warn); }
   .text-success { color: var(--accent); }
-  .text-info { color: var(--info); }
   .text-muted { color: var(--muted); }
 
   #toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 13px; z-index: 9999; display: none; max-width: 300px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   #toast.success { border-left: 3px solid var(--accent); }
   #toast.error { border-left: 3px solid var(--danger); }
   #toast.warn { border-left: 3px solid var(--warn); }
+
+  .login-btn-loading { opacity: 0.7; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -229,30 +202,36 @@
 <!-- LOGIN SCREEN -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
-    <div class="login-logo">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <div class="logo-icon" style="background:var(--accent);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        <span style="font-size:20px;font-weight:700">LandingKit</span>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+      <div style="background:var(--accent);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" width="18" height="18"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </div>
+      <span style="font-size:20px;font-weight:700">LandingKit</span>
     </div>
     <div class="login-title">Panel Maestro</div>
     <div class="login-sub">Ingresa tus credenciales de administrador</div>
-    <div class="login-fields">
-      <div class="field">
-        <label>Email de administrador</label>
-        <input type="email" id="login-email" placeholder="admin@gmail.com" />
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
-      </div>
-      <div class="login-err" id="login-err">Credenciales inválidas</div>
+
+    <!-- URL del backend visible y editable -->
+    <div class="login-url-field">
+      <label>URL del Backend (Apps Script)</label>
+      <input type="url" id="login-backend-url" placeholder="https://script.google.com/macros/s/XXXX/exec" />
     </div>
-    <button class="btn primary" style="width:100%" onclick="doLogin()">Ingresar</button>
-    <div style="margin-top:16px;font-size:11px;color:var(--muted);text-align:center">
-      La URL del backend se configura en <span style="font-family:var(--mono)">config.js</span>
+
+    <div class="field">
+      <label>Email de administrador</label>
+      <input type="email" id="login-email" placeholder="admin@gmail.com" />
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <div class="login-err" id="login-err">Credenciales inválidas. Verifica tu email y contraseña.</div>
+
+    <button class="btn primary" style="width:100%;margin-top:8px;height:42px" id="btn-login" onclick="doLogin()">
+      Ingresar
+    </button>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center">
+      Contraseña configurada en Apps Script → Propiedades del script → <span style="font-family:var(--mono)">ADMIN_PASS</span>
     </div>
   </div>
 </div>
@@ -292,7 +271,7 @@
   <div class="sidebar-footer">
     <div class="admin-chip">
       <div class="admin-avatar">A</div>
-      <div class="admin-info">
+      <div>
         <div style="font-size:13px;font-weight:500">Administrador</div>
         <div class="admin-role">Superadmin</div>
       </div>
@@ -313,35 +292,33 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
         Actualizar
       </button>
-      <button class="btn primary sm" onclick="openModal('create-store')">
-        + Nueva Tienda
-      </button>
+      <button class="btn primary sm" onclick="openModal('create-store')">+ Nueva Tienda</button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- DASHBOARD PANEL -->
+    <!-- DASHBOARD -->
     <div class="panel active" id="panel-dashboard">
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-card"><div class="stat-label">Tiendas activas</div><div class="stat-value stat-accent" id="s-active">—</div><div class="stat-sub">Total registradas: <span id="s-total">—</span></div></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Tiendas activas</div><div class="stat-value stat-accent" id="s-active">—</div><div class="stat-sub">Total: <span id="s-total">—</span></div></div>
         <div class="stat-card"><div class="stat-label">Suspendidas</div><div class="stat-value stat-danger" id="s-susp">—</div><div class="stat-sub">Requieren atención</div></div>
-        <div class="stat-card"><div class="stat-label">Alertas sin leer</div><div class="stat-value stat-warn" id="s-alerts">—</div><div class="stat-sub">Pendientes de revisión</div></div>
-        <div class="stat-card"><div class="stat-label">Planes activos</div><div class="stat-value" id="s-plans">—</div><div class="stat-sub">Free / Starter / Pro</div></div>
+        <div class="stat-card"><div class="stat-label">Alertas sin leer</div><div class="stat-value stat-warn" id="s-alerts">—</div><div class="stat-sub">Pendientes</div></div>
+        <div class="stat-card"><div class="stat-label">Planes</div><div class="stat-value" id="s-plans" style="font-size:18px;margin-top:4px">—</div><div class="stat-sub">Free / Starter / Pro</div></div>
       </div>
-
-      <div class="section-hdr">
-        <div class="section-title">Actividad reciente</div>
-      </div>
+      <div class="section-hdr"><div class="section-title">Actividad reciente</div></div>
       <div class="table-wrap" id="recent-alerts-wrap">
-        <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg><h3>Sin alertas recientes</h3><p>Cuando haya actividad, aparecerá aquí</p></div>
+        <div class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+          <h3>Sin alertas recientes</h3><p>Cuando haya actividad aparecerá aquí</p>
+        </div>
       </div>
     </div>
 
-    <!-- STORES PANEL -->
+    <!-- TIENDAS -->
     <div class="panel" id="panel-stores">
       <div style="display:flex;gap:12px;margin-bottom:20px;align-items:center">
-        <input class="field input" style="flex:1;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font)" placeholder="Buscar tienda por nombre o email..." id="search-stores" oninput="filterStores()">
+        <input style="flex:1;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font)" placeholder="Buscar por nombre o email..." id="search-stores" oninput="filterStores()">
         <select style="padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font)" id="filter-status" onchange="filterStores()">
           <option value="">Todos los estados</option>
           <option value="active">Activas</option>
@@ -353,43 +330,39 @@
       </div>
     </div>
 
-    <!-- ALERTS PANEL -->
+    <!-- ALERTAS -->
     <div class="panel" id="panel-alerts">
       <div class="table-wrap" id="alerts-list">
-        <div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg><h3>Sin alertas</h3><p>Todo en orden</p></div>
+        <div class="empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+          <h3>Sin alertas</h3><p>Todo en orden</p>
+        </div>
       </div>
     </div>
 
-    <!-- SETTINGS PANEL -->
+    <!-- SETTINGS -->
     <div class="panel" id="panel-settings">
       <div class="store-detail">
-        <div class="detail-header">
-          <div style="font-size:18px;font-weight:600">Configuración del sistema</div>
-        </div>
+        <div class="detail-header"><div style="font-size:18px;font-weight:600">Configuración del sistema</div></div>
         <div style="padding:24px">
           <div class="field">
             <label>URL del backend (Apps Script Web App)</label>
             <input type="url" id="cfg-backend-url" placeholder="https://script.google.com/macros/s/XXXXXXXX/exec" />
-            <div class="field-hint">Obtenla en Apps Script → Desplegar → Administrar implementaciones</div>
-          </div>
-          <div class="field">
-            <label>Email del administrador</label>
-            <input type="email" id="cfg-admin-email" placeholder="admin@gmail.com" />
+            <div class="field-hint">Apps Script → Desplegar → Administrar implementaciones</div>
           </div>
           <button class="btn primary" onclick="saveSettings()">Guardar configuración</button>
           <hr class="divider">
-          <div class="field">
-            <label>Contraseña de acceso al backend</label>
-            <div class="field-hint">Cámbiala en Apps Script → Propiedades del script → ADMIN_PASS</div>
-          </div>
-          <div class="url-box" id="backend-url-display" style="margin-top:8px">No configurado</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em">URL activa</div>
+          <div class="url-box" id="backend-url-display">No configurado</div>
+          <hr class="divider">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Para cambiar la contraseña del admin ve a Apps Script → Configuración del proyecto → Propiedades del script → <span style="font-family:var(--mono)">ADMIN_PASS</span></div>
         </div>
       </div>
     </div>
 
-    <!-- STORE DETAIL PANEL -->
+    <!-- STORE DETAIL -->
     <div class="panel" id="panel-store-detail">
-      <button class="btn ghost sm" onclick="showPanel('stores')" style="margin-bottom:16px">← Volver a tiendas</button>
+      <button class="btn ghost sm" onclick="showPanel('stores')" style="margin-bottom:16px">← Volver</button>
       <div class="store-detail" id="store-detail-content"></div>
     </div>
 
@@ -405,12 +378,23 @@
     </div>
     <div class="modal-body">
       <div class="field-row">
-        <div class="field"><label>Nombre de la tienda *</label><input id="new-name" placeholder="Tienda Ejemplo" /></div>
-        <div class="field"><label>Slug (URL) *</label><input id="new-slug" placeholder="tienda-ejemplo" /></div>
+        <div class="field"><label>Nombre *</label><input id="new-name" placeholder="Mi Tienda" /></div>
+        <div class="field"><label>Slug (URL) *</label><input id="new-slug" placeholder="mi-tienda" /></div>
       </div>
-      <div class="field"><label>Email del dueño (Gmail) *</label><input type="email" id="new-email" placeholder="dueno@gmail.com" /><div class="field-hint">El Sheet de la tienda se compartirá con este correo</div></div>
+      <div class="field">
+        <label>Email del dueño (Gmail) *</label>
+        <input type="email" id="new-email" placeholder="dueno@gmail.com" />
+        <div class="field-hint">El Sheet se compartirá con este correo y se enviará el token de acceso</div>
+      </div>
       <div class="field-row">
-        <div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free (10 productos, 50 pedidos/mes)</option><option value="starter">Starter (50 productos, 500 pedidos/mes)</option><option value="pro">Pro (ilimitado)</option></select></div>
+        <div class="field">
+          <label>Plan</label>
+          <select id="new-plan">
+            <option value="free">Free (10 productos, 50 pedidos/mes)</option>
+            <option value="starter">Starter (50 productos, 500 pedidos/mes)</option>
+            <option value="pro">Pro (ilimitado)</option>
+          </select>
+        </div>
         <div class="field"><label>Vencimiento de licencia</label><input type="date" id="new-expiry" /></div>
       </div>
     </div>
@@ -430,12 +414,18 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="license-store-id">
-      <div class="field"><label>Plan</label><select id="license-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>
+      <div class="field"><label>Plan</label>
+        <select id="license-plan">
+          <option value="free">Free</option>
+          <option value="starter">Starter</option>
+          <option value="pro">Pro</option>
+        </select>
+      </div>
       <div class="field"><label>Fecha de vencimiento</label><input type="date" id="license-expiry" /></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('license')">Cancelar</button>
-      <button class="btn primary" onclick="saveLicense()">Guardar licencia</button>
+      <button class="btn primary" onclick="saveLicense()">Guardar</button>
     </div>
   </div>
 </div>
@@ -449,7 +439,7 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="suspend-store-id">
-      <div class="field"><label>Motivo de suspensión</label><textarea id="suspend-reason" placeholder="Ej: Pago pendiente, violación de términos..."></textarea></div>
+      <div class="field"><label>Motivo</label><textarea id="suspend-reason" placeholder="Ej: Pago pendiente, violación de términos..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('suspend')">Cancelar</button>
@@ -461,22 +451,24 @@
 <div id="toast"></div>
 
 <script>
-// ── CONFIG ─────────────────────────────────────────────────────
+// ── CONFIG ────────────────────────────────────────────────────
 let BACKEND_URL = localStorage.getItem('lk_backend') || '';
 let AUTH_TOKEN  = localStorage.getItem('lk_token')   || '';
 let ALL_STORES  = [];
 
 // ── INIT ──────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  // Fecha default para nueva tienda: 14 días
   const d = new Date(); d.setDate(d.getDate() + 14);
   document.getElementById('new-expiry').value = d.toISOString().slice(0,10);
 
-  if (document.getElementById('cfg-backend-url')) {
-    document.getElementById('cfg-backend-url').value = BACKEND_URL;
+  // Cargar URL guardada en los campos
+  if (BACKEND_URL) {
+    document.getElementById('login-backend-url').value = BACKEND_URL;
+    document.getElementById('cfg-backend-url').value   = BACKEND_URL;
+    document.getElementById('backend-url-display').textContent = BACKEND_URL;
   }
 
-  if (AUTH_TOKEN) {
+  if (AUTH_TOKEN && BACKEND_URL) {
     document.getElementById('login-screen').style.display = 'none';
     refreshData();
   } else {
@@ -485,55 +477,119 @@ window.addEventListener('load', () => {
 
   // auto-slug
   document.getElementById('new-name').addEventListener('input', e => {
-    document.getElementById('new-slug').value = e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    document.getElementById('new-slug').value = e.target.value
+      .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   });
 });
+
+// ── LOGIN ─────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const bu    = document.getElementById('login-backend-url').value.trim();
+
+  // Validaciones básicas antes de llamar
+  document.getElementById('login-err').style.display = 'none';
+
+  if (!bu) {
+    showLoginErr('Ingresa la URL del backend primero'); return;
+  }
+  if (!email) {
+    showLoginErr('Ingresa tu email de administrador'); return;
+  }
+  if (!pass) {
+    showLoginErr('Ingresa tu contraseña'); return;
+  }
+
+  BACKEND_URL = bu;
+  localStorage.setItem('lk_backend', bu);
+
+  // Mostrar loading
+  const btn = document.getElementById('btn-login');
+  btn.classList.add('login-btn-loading');
+  btn.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px"></span> Verificando...';
+
+  try {
+    const res = await fetch(bu, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      // ✅ FIX: Enviamos exactamente lo que el backend espera
+      body: JSON.stringify({
+        action: 'admin.login',
+        email: email,
+        password: pass
+      })
+    });
+
+    if (!res.ok && res.status !== 200) {
+      showLoginErr('Error de red: ' + res.status); return;
+    }
+
+    const data = await res.json();
+
+    // ✅ FIX: El backend regresa { ok:true, ok:false, token, error }
+    // Como adminLogin regresa {ok:false, error:...} y el router envuelve con {ok:true,...}
+    // el spread del router pisa ok. Verificamos el token directamente.
+    if (data.token) {
+      // Login exitoso
+      AUTH_TOKEN = data.token;
+      localStorage.setItem('lk_token', AUTH_TOKEN);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('cfg-backend-url').value = bu;
+      document.getElementById('backend-url-display').textContent = bu;
+      refreshData();
+    } else if (data.error) {
+      showLoginErr('Error: ' + data.error);
+    } else {
+      showLoginErr('Credenciales inválidas. Verifica email y contraseña.');
+    }
+
+  } catch(err) {
+    showLoginErr('No se pudo conectar con el backend. Verifica la URL.');
+  } finally {
+    btn.classList.remove('login-btn-loading');
+    btn.textContent = 'Ingresar';
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg || 'Credenciales inválidas';
+  el.style.display = 'block';
+  const btn = document.getElementById('btn-login');
+  btn.classList.remove('login-btn-loading');
+  btn.textContent = 'Ingresar';
+}
+
+function logout() {
+  localStorage.removeItem('lk_token');
+  AUTH_TOKEN = '';
+  location.reload();
+}
 
 // ── API HELPER ────────────────────────────────────────────────
 async function api(action, data = {}, method = 'POST') {
   if (!BACKEND_URL) { toast('Configura la URL del backend primero', 'warn'); return null; }
   try {
-    const url = method === 'GET' ? `${BACKEND_URL}?action=${action}&token=${AUTH_TOKEN}` : BACKEND_URL;
-    const opts = method === 'GET' ? { method: 'GET' } : {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, token: AUTH_TOKEN, ...data })
-    };
-    const res  = await fetch(url, opts);
+    let res;
+    if (method === 'GET') {
+      res = await fetch(`${BACKEND_URL}?action=${action}&token=${encodeURIComponent(AUTH_TOKEN)}`);
+    } else {
+      res = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, token: AUTH_TOKEN, ...data })
+      });
+    }
     const json = await res.json();
-    if (!json.ok) throw new Error(json.error || 'Error desconocido');
+    // ✅ FIX: Verificar error independientemente del ok
+    if (json.error && !json.token) throw new Error(json.error);
     return json;
   } catch(e) {
     toast(e.message, 'error');
     return null;
   }
 }
-
-// ── LOGIN ─────────────────────────────────────────────────────
-async function doLogin() {
-  const email = document.getElementById('login-email').value;
-  const pass  = document.getElementById('login-pass').value;
-  const bu    = BACKEND_URL || prompt('URL del backend (Apps Script):');
-  if (!bu) return;
-  BACKEND_URL = bu;
-  localStorage.setItem('lk_backend', bu);
-
-  const res = await fetch(bu, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'admin.login', email, password: pass })
-  }).catch(() => null);
-  if (!res) { showLoginErr(); return; }
-  const data = await res.json();
-  if (!data.ok || !data.token) { showLoginErr(); return; }
-
-  AUTH_TOKEN = data.token;
-  localStorage.setItem('lk_token', AUTH_TOKEN);
-  document.getElementById('login-screen').style.display = 'none';
-  refreshData();
-}
-
-function showLoginErr() { document.getElementById('login-err').style.display = 'block'; }
-function logout() { localStorage.removeItem('lk_token'); location.reload(); }
 
 // ── DATA ──────────────────────────────────────────────────────
 async function refreshData() {
@@ -542,13 +598,12 @@ async function refreshData() {
     api('admin.stores.list', {}, 'GET'),
     api('admin.alerts.list', {}, 'GET'),
   ]);
-
-  if (statsRes) renderStats(statsRes);
-  if (storesRes) { ALL_STORES = storesRes.stores; renderStores(ALL_STORES); }
+  if (statsRes)  renderStats(statsRes);
+  if (storesRes) { ALL_STORES = storesRes.stores || []; renderStores(ALL_STORES); }
   if (alertsRes) renderAlerts(alertsRes.alerts);
 }
 
-// ── PANELS ───────────────────────────────────────────────────
+// ── PANELS ────────────────────────────────────────────────────
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -561,12 +616,12 @@ function showPanel(name) {
 
 // ── STATS ─────────────────────────────────────────────────────
 function renderStats(s) {
-  document.getElementById('s-active').textContent = s.active || 0;
-  document.getElementById('s-total').textContent  = s.totalStores || 0;
-  document.getElementById('s-susp').textContent   = s.suspended || 0;
-  document.getElementById('s-alerts').textContent = s.unreadAlerts || 0;
-  const plans = s.byPlan || {};
-  document.getElementById('s-plans').textContent  = `${plans.free||0} / ${plans.starter||0} / ${plans.pro||0}`;
+  document.getElementById('s-active').textContent = s.active ?? 0;
+  document.getElementById('s-total').textContent  = s.totalStores ?? 0;
+  document.getElementById('s-susp').textContent   = s.suspended ?? 0;
+  document.getElementById('s-alerts').textContent = s.unreadAlerts ?? 0;
+  const p = s.byPlan || {};
+  document.getElementById('s-plans').textContent  = `${p.free||0} / ${p.starter||0} / ${p.pro||0}`;
   if (s.unreadAlerts > 0) {
     const b = document.getElementById('alerts-badge');
     b.style.display = 'inline'; b.textContent = s.unreadAlerts;
@@ -576,19 +631,19 @@ function renderStats(s) {
 // ── STORES ────────────────────────────────────────────────────
 function renderStores(stores) {
   const grid = document.getElementById('stores-grid');
-  if (!stores.length) {
+  if (!stores || !stores.length) {
     grid.innerHTML = `<div style="grid-column:1/-1" class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      <h3>Sin tiendas</h3><p>Crea la primera tienda con el botón "Nueva Tienda"</p>
+      <h3>Sin tiendas</h3><p>Crea la primera tienda con "+ Nueva Tienda"</p>
     </div>`; return;
   }
   grid.innerHTML = stores.map(s => {
-    const initial = (s.name||'?')[0].toUpperCase();
-    const status  = s.status || 'active';
-    const plan    = s.plan   || 'free';
-    const expiry  = s.licenseExpiry ? new Date(s.licenseExpiry) : null;
-    const daysLeft= expiry ? Math.ceil((expiry - new Date()) / 86400000) : 0;
-    const expClass= daysLeft <= 0 ? 'expired' : daysLeft <= 7 ? 'warn' : '';
+    const initial  = (s.name||'?')[0].toUpperCase();
+    const status   = s.status || 'active';
+    const plan     = s.plan   || 'free';
+    const expiry   = s.licenseExpiry ? new Date(s.licenseExpiry) : null;
+    const daysLeft = expiry ? Math.ceil((expiry - new Date()) / 86400000) : 999;
+    const expClass = daysLeft <= 0 ? 'expired' : daysLeft <= 7 ? 'warn' : '';
     return `
     <div class="store-card ${status === 'suspended' ? 'suspended' : ''}" onclick="openStoreDetail('${s.storeId}')">
       <div class="store-card-header">
@@ -601,10 +656,10 @@ function renderStores(stores) {
       <div class="store-card-body">
         <span class="badge ${status}">${status === 'active' ? '<span class="badge-dot"></span>' : ''}${status}</span>
         <span class="badge ${plan}">${plan}</span>
-        ${expClass ? `<span class="badge ${expClass}">${daysLeft <= 0 ? 'vencida' : daysLeft + 'd restantes'}</span>` : ''}
+        ${expClass ? `<span class="badge ${expClass}">${daysLeft <= 0 ? 'Vencida' : daysLeft + 'd restantes'}</span>` : ''}
       </div>
       <div class="store-card-footer">
-        <div class="store-footer-stat">${s.slug}</div>
+        <div class="store-footer-stat">${esc(s.slug||'')}</div>
         <div class="store-actions" onclick="event.stopPropagation()">
           ${status === 'active'
             ? `<button class="btn danger sm" onclick="openSuspend('${s.storeId}')">Suspender</button>`
@@ -617,24 +672,21 @@ function renderStores(stores) {
 }
 
 function filterStores() {
-  const q     = document.getElementById('search-stores').value.toLowerCase();
-  const st    = document.getElementById('filter-status').value;
-  const filt  = ALL_STORES.filter(s =>
-    (!q  || s.name.toLowerCase().includes(q) || s.ownerEmail.toLowerCase().includes(q)) &&
+  const q  = document.getElementById('search-stores').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  renderStores(ALL_STORES.filter(s =>
+    (!q  || (s.name||'').toLowerCase().includes(q) || (s.ownerEmail||'').toLowerCase().includes(q)) &&
     (!st || s.status === st)
-  );
-  renderStores(filt);
+  ));
 }
 
 // ── STORE DETAIL ──────────────────────────────────────────────
-async function openStoreDetail(storeId) {
+function openStoreDetail(storeId) {
   showPanel('store-detail');
   const store = ALL_STORES.find(s => s.storeId === storeId);
   if (!store) return;
-  const cont  = document.getElementById('store-detail-content');
-  const cfg   = store.config || {};
   const expiry = store.licenseExpiry ? new Date(store.licenseExpiry).toLocaleDateString('es-MX') : 'N/D';
-  cont.innerHTML = `
+  document.getElementById('store-detail-content').innerHTML = `
     <div class="detail-header" style="justify-content:space-between">
       <div style="display:flex;align-items:center;gap:14px">
         <div class="detail-avatar">${(store.name||'?')[0].toUpperCase()}</div>
@@ -657,18 +709,18 @@ async function openStoreDetail(storeId) {
       <div id="dtab-info">
         <div class="info-grid">
           <div class="info-item"><div class="info-label">ID</div><div class="info-value mono">${store.storeId}</div></div>
-          <div class="info-item"><div class="info-label">Slug</div><div class="info-value mono">${store.slug}</div></div>
+          <div class="info-item"><div class="info-label">Slug</div><div class="info-value mono">${store.slug||'—'}</div></div>
           <div class="info-item"><div class="info-label">Plan</div><div class="info-value">${store.plan}</div></div>
           <div class="info-item"><div class="info-label">Licencia vence</div><div class="info-value">${expiry}</div></div>
           <div class="info-item"><div class="info-label">Creada</div><div class="info-value">${store.createdAt ? new Date(store.createdAt).toLocaleDateString('es-MX') : 'N/D'}</div></div>
           <div class="info-item"><div class="info-label">Estado</div><div class="info-value">${store.status}</div></div>
         </div>
-        ${store.suspendReason ? `<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo de suspensión: ${esc(store.suspendReason)}</div>` : ''}
+        ${store.suspendReason ? `<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo: ${esc(store.suspendReason)}</div>` : ''}
       </div>
       <div id="dtab-sheet" style="display:none">
         <div style="margin-bottom:16px">
-          <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Sheet ID</div>
-          <div class="url-box">${store.sheetId || 'N/D'}<button class="btn sm" onclick="copyText('${store.sheetId}')">Copiar</button></div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Sheet ID</div>
+          <div class="url-box">${store.sheetId||'N/D'} <button class="btn sm" onclick="copyText('${store.sheetId}')">Copiar</button></div>
         </div>
         <a href="https://docs.google.com/spreadsheets/d/${store.sheetId}" target="_blank" class="btn primary">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -683,8 +735,7 @@ async function openStoreDetail(storeId) {
         <hr class="divider">
         <button class="btn danger" style="width:100%" onclick="confirmDelete('${store.storeId}')">Eliminar tienda permanentemente</button>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 function switchDtab(el, id) {
@@ -696,35 +747,40 @@ function switchDtab(el, id) {
 
 // ── ALERTS ────────────────────────────────────────────────────
 function renderAlerts(alerts) {
-  const wrap   = document.getElementById('alerts-list');
-  const dashW  = document.getElementById('recent-alerts-wrap');
   if (!alerts || !alerts.length) return;
   const html = alerts.slice(0,50).map(a => `
     <div class="alert-item">
-      <div class="alert-dot ${a.level}"></div>
+      <div class="alert-dot ${a.level||'info'}"></div>
       <div>
         <div class="alert-msg">${esc(a.message)}</div>
-        <div class="alert-meta">${a.storeId} · ${a.type} · ${a.createdAt ? new Date(a.createdAt).toLocaleString('es-MX') : ''}</div>
+        <div class="alert-meta">${a.storeId||''} · ${a.type||''} · ${a.createdAt ? new Date(a.createdAt).toLocaleString('es-MX') : ''}</div>
       </div>
     </div>`).join('');
-  wrap.innerHTML = html;
-  dashW.innerHTML = html.split('\n').slice(0,30).join('\n') || dashW.innerHTML;
+  document.getElementById('alerts-list').innerHTML = html;
+  document.getElementById('recent-alerts-wrap').innerHTML = alerts.slice(0,5).map(a => `
+    <div class="alert-item">
+      <div class="alert-dot ${a.level||'info'}"></div>
+      <div>
+        <div class="alert-msg">${esc(a.message)}</div>
+        <div class="alert-meta">${a.storeId||''} · ${a.createdAt ? new Date(a.createdAt).toLocaleString('es-MX') : ''}</div>
+      </div>
+    </div>`).join('');
 }
 
-// ── ACTIONS ───────────────────────────────────────────────────
+// ── ACCIONES ──────────────────────────────────────────────────
 async function createStore() {
   const btn = document.getElementById('btn-create-store');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creando...';
   const res = await api('admin.store.create', {
-    name: document.getElementById('new-name').value,
-    slug: document.getElementById('new-slug').value,
+    name:       document.getElementById('new-name').value,
+    slug:       document.getElementById('new-slug').value,
     ownerEmail: document.getElementById('new-email').value,
-    plan: document.getElementById('new-plan').value,
+    plan:       document.getElementById('new-plan').value,
   });
   btn.disabled = false; btn.textContent = 'Crear tienda';
   if (!res) return;
   closeModal('create-store');
-  toast(`Tienda creada. Token enviado a ${document.getElementById('new-email').value}`, 'success');
+  toast('Tienda creada exitosamente', 'success');
   refreshData();
 }
 
@@ -735,9 +791,10 @@ function openSuspend(storeId) {
 }
 
 async function doSuspend() {
-  const storeId = document.getElementById('suspend-store-id').value;
-  const reason  = document.getElementById('suspend-reason').value;
-  const res = await api('admin.store.suspend', { storeId, reason });
+  const res = await api('admin.store.suspend', {
+    storeId: document.getElementById('suspend-store-id').value,
+    reason:  document.getElementById('suspend-reason').value,
+  });
   if (!res) return;
   closeModal('suspend');
   toast('Tienda suspendida', 'warn');
@@ -753,15 +810,15 @@ async function doActivate(storeId) {
 
 function openLicense(storeId, plan, expiry) {
   document.getElementById('license-store-id').value = storeId;
-  document.getElementById('license-plan').value = plan || 'free';
-  document.getElementById('license-expiry').value = expiry ? expiry.slice(0,10) : '';
+  document.getElementById('license-plan').value     = plan || 'free';
+  document.getElementById('license-expiry').value   = expiry ? expiry.slice(0,10) : '';
   openModal('license');
 }
 
 async function saveLicense() {
   const res = await api('admin.license.set', {
-    storeId: document.getElementById('license-store-id').value,
-    plan:    document.getElementById('license-plan').value,
+    storeId:    document.getElementById('license-store-id').value,
+    plan:       document.getElementById('license-plan').value,
     expiryDate: document.getElementById('license-expiry').value,
   });
   if (!res) return;
@@ -771,7 +828,7 @@ async function saveLicense() {
 }
 
 async function confirmDelete(storeId) {
-  if (!confirm('⚠️ Esto eliminará la tienda y moverá su Sheet a la papelera. ¿Confirmar?')) return;
+  if (!confirm('⚠️ Esto eliminará la tienda permanentemente. ¿Confirmar?')) return;
   const res = await api('admin.store.delete', { storeId });
   if (!res) return;
   showPanel('stores');
@@ -779,11 +836,12 @@ async function confirmDelete(storeId) {
   refreshData();
 }
 
-// ── SETTINGS ─────────────────────────────────────────────────
+// ── SETTINGS ──────────────────────────────────────────────────
 function saveSettings() {
   BACKEND_URL = document.getElementById('cfg-backend-url').value.trim();
   localStorage.setItem('lk_backend', BACKEND_URL);
   document.getElementById('backend-url-display').textContent = BACKEND_URL || 'No configurado';
+  document.getElementById('login-backend-url').value = BACKEND_URL;
   toast('Configuración guardada', 'success');
 }
 
@@ -791,15 +849,18 @@ function saveSettings() {
 function openModal(id)  { document.getElementById('modal-' + id).classList.add('open'); }
 function closeModal(id) { document.getElementById('modal-' + id).classList.remove('open'); }
 function esc(str)       { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function copyText(t)    { navigator.clipboard.writeText(t); toast('Copiado', 'success'); }
+function copyText(t)    { navigator.clipboard.writeText(t||''); toast('Copiado', 'success'); }
 
 function toast(msg, type = 'success') {
   const el = document.getElementById('toast');
   el.textContent = msg; el.className = type; el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 3000);
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.display = 'none'; }, 3500);
 }
 
-document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
+);
 </script>
 </body>
 </html>
