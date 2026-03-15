@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -228,11 +229,11 @@
         <div style="padding:24px">
           <div class="field"><label>URL del backend (Apps Script Web App)</label><div class="url-box" id="backend-url-display">No configurado</div></div>
           <hr class="divider">
-          <div class="field"><label>URL base de la tienda pública</label><input type="url" id="cfg-store-base-url" placeholder="https://tuusuario.github.io/tienda/"/><div class="field-hint">URL donde está el <strong>tienda.html</strong></div></div>
-          <div class="field"><label>URL base del panel dueño</label><input type="url" id="cfg-owner-panel-url" placeholder="https://tuusuario.github.io/panel/"/><div class="field-hint">URL donde está el <strong>panel-dueno.html</strong></div></div>
+          <div class="field"><label>URL base de la tienda pública</label><input type="url" id="cfg-store-base-url" placeholder="https://tuusuario.github.io/tienda/"/><div class="field-hint">URL donde está el tienda.html</div></div>
+          <div class="field"><label>URL base del panel dueño</label><input type="url" id="cfg-owner-panel-url" placeholder="https://tuusuario.github.io/panel/"/><div class="field-hint">URL donde está el panel-dueno.html</div></div>
           <button class="btn primary" onclick="saveSettings()">Guardar configuración</button>
           <hr class="divider">
-          <div style="font-size:12px;color:var(--muted)">Para cambiar contraseña: Apps Script → ⚙️ → Propiedades del script → <span style="font-family:var(--mono)">ADMIN_PASS</span></div>
+          <div style="font-size:12px;color:var(--muted)">Para cambiar contraseña: Apps Script → ⚙️ → Propiedades del script → ADMIN_PASS</div>
         </div>
       </div>
     </div>
@@ -319,289 +320,372 @@ let OWNER_BASE = localStorage.getItem('lk_owner_base') || 'https://proyectosolar
 let ALL_STORES = [];
 
 window.addEventListener('load', () => {
-  const d=new Date(); d.setDate(d.getDate()+14);
-  document.getElementById('new-expiry').value=d.toISOString().slice(0,10);
-  document.getElementById('backend-url-display').textContent=BACKEND;
-  if(STORE_BASE) document.getElementById('cfg-store-base-url').value=STORE_BASE;
-  if(OWNER_BASE) document.getElementById('cfg-owner-panel-url').value=OWNER_BASE;
-  if(AUTH_TOKEN){ document.getElementById('login-screen').style.display='none'; refreshData(); }
-  document.getElementById('new-name').addEventListener('input',e=>{
-    document.getElementById('new-slug').value=e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const d = new Date(); d.setDate(d.getDate()+14);
+  document.getElementById('new-expiry').value = d.toISOString().slice(0,10);
+  document.getElementById('backend-url-display').textContent = BACKEND;
+  if (STORE_BASE) document.getElementById('cfg-store-base-url').value = STORE_BASE;
+  if (OWNER_BASE) document.getElementById('cfg-owner-panel-url').value = OWNER_BASE;
+  if (AUTH_TOKEN) { document.getElementById('login-screen').style.display='none'; refreshData(); }
+  document.getElementById('new-name').addEventListener('input', e => {
+    document.getElementById('new-slug').value = e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   });
 });
 
-// ✅ LOGIN — POST directo, muestra error visible
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const btn   = document.getElementById('btn-login');
-  const errEl = document.getElementById('login-err');
-  errEl.style.display='none';
-  if(!email||!pass){ showLoginErr('Completa email y contraseña'); return; }
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Verificando...';
+  document.getElementById('login-err').style.display = 'none';
+  if (!email || !pass) { showLoginErr('Completa email y contraseña'); return; }
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Verificando...';
   try {
     const res  = await fetch(BACKEND, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action:'admin.login', email, password:pass})
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'admin.login', email, password: pass })
     });
     const text = await res.text();
-    console.log('Login response raw:', text);
     let data;
-    try { data=JSON.parse(text); } catch(e){ showLoginErr('Respuesta inválida del servidor: '+text.slice(0,100)); return; }
-    console.log('Login response parsed:', data);
-    if(data.ok && data.token){
-      AUTH_TOKEN=data.token;
-      localStorage.setItem('lk_token',AUTH_TOKEN);
-      document.getElementById('login-screen').style.display='none';
+    try { data = JSON.parse(text); } catch(e) { showLoginErr('Respuesta inválida: ' + text.slice(0,80)); return; }
+    if (data.ok && data.token) {
+      AUTH_TOKEN = data.token;
+      localStorage.setItem('lk_token', AUTH_TOKEN);
+      document.getElementById('login-screen').style.display = 'none';
       refreshData();
     } else {
-      showLoginErr(data.error||'Credenciales inválidas — verifica tu contraseña en Apps Script > Propiedades del script > ADMIN_PASS');
+      showLoginErr(data.error || 'Credenciales inválidas');
     }
-  } catch(e){ showLoginErr('Error de conexión: '+e.message); }
-  finally { btn.disabled=false; btn.textContent='Ingresar'; }
+  } catch(e) { showLoginErr('Error de conexión: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Ingresar'; }
 }
 
-function showLoginErr(msg){
-  const el=document.getElementById('login-err');
-  el.textContent=msg; el.style.display='block';
-  document.getElementById('btn-login').disabled=false;
-  document.getElementById('btn-login').textContent='Ingresar';
+function showLoginErr(msg) {
+  const el = document.getElementById('login-err');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('btn-login').disabled = false;
+  document.getElementById('btn-login').textContent = 'Ingresar';
 }
-function logout(){ localStorage.removeItem('lk_token'); AUTH_TOKEN=''; location.reload(); }
 
-// ✅ API — SIEMPRE POST, token en body
-async function api(action, data={}) {
+function logout() { localStorage.removeItem('lk_token'); AUTH_TOKEN = ''; location.reload(); }
+
+async function api(action, data) {
+  data = data || {};
   try {
     const res  = await fetch(BACKEND, {
-      method:'POST',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body: JSON.stringify({action, token:AUTH_TOKEN, ...data})
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ action: action, token: AUTH_TOKEN }, data))
     });
     const text = await res.text();
-    let json;
-    try { json=JSON.parse(text); } catch(e){ throw new Error('Respuesta no es JSON: '+text.slice(0,100)); }
-    if(json.error && !json.token) throw new Error(json.error);
+    var json;
+    try { json = JSON.parse(text); } catch(e) { throw new Error('Respuesta no es JSON: ' + text.slice(0,80)); }
+    if (json.error && !json.token) throw new Error(json.error);
     return json;
-  } catch(e){ toast(e.message,'error'); return null; }
+  } catch(e) { toast(e.message, 'error'); return null; }
 }
 
-// ✅ REFRESH — sin GET
 async function refreshData() {
-  const [s,st,al] = await Promise.all([
+  var results = await Promise.all([
     api('admin.stats'),
     api('admin.stores.list'),
-    api('admin.alerts.list'),
+    api('admin.alerts.list')
   ]);
-  if(s)  renderStats(s);
-  if(st) { ALL_STORES=st.stores||[]; renderStores(ALL_STORES); }
-  if(al) renderAlerts(al.alerts);
+  var s = results[0], st = results[1], al = results[2];
+  if (s)  renderStats(s);
+  if (st) { ALL_STORES = st.stores || []; renderStores(ALL_STORES); }
+  if (al) renderAlerts(al.alerts);
 }
 
-function showPanel(name){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('panel-'+name).classList.add('active');
-  const nav=document.getElementById('nav-'+name); if(nav)nav.classList.add('active');
-  const t={dashboard:'Dashboard',stores:'Tiendas',alerts:'Alertas',settings:'Configuración','store-detail':'Detalle de tienda'};
-  document.getElementById('page-title').textContent=t[name]||name;
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
+  document.getElementById('panel-' + name).classList.add('active');
+  var nav = document.getElementById('nav-' + name); if (nav) nav.classList.add('active');
+  var t = { dashboard:'Dashboard', stores:'Tiendas', alerts:'Alertas', settings:'Configuración', 'store-detail':'Detalle de tienda' };
+  document.getElementById('page-title').textContent = t[name] || name;
 }
 
-function renderStats(s){
-  document.getElementById('s-active').textContent=s.active??0;
-  document.getElementById('s-total').textContent=s.totalStores??0;
-  document.getElementById('s-susp').textContent=s.suspended??0;
-  document.getElementById('s-alerts').textContent=s.unreadAlerts??0;
-  const p=s.byPlan||{};
-  document.getElementById('s-plans').textContent=`${p.free||0} / ${p.starter||0} / ${p.pro||0}`;
-  if(s.unreadAlerts>0){const b=document.getElementById('alerts-badge');b.style.display='inline';b.textContent=s.unreadAlerts;}
+function renderStats(s) {
+  document.getElementById('s-active').textContent = s.active != null ? s.active : 0;
+  document.getElementById('s-total').textContent  = s.totalStores != null ? s.totalStores : 0;
+  document.getElementById('s-susp').textContent   = s.suspended != null ? s.suspended : 0;
+  document.getElementById('s-alerts').textContent = s.unreadAlerts != null ? s.unreadAlerts : 0;
+  var p = s.byPlan || {};
+  document.getElementById('s-plans').textContent = (p.free||0) + ' / ' + (p.starter||0) + ' / ' + (p.pro||0);
+  if (s.unreadAlerts > 0) {
+    var b = document.getElementById('alerts-badge');
+    b.style.display = 'inline'; b.textContent = s.unreadAlerts;
+  }
 }
 
-function renderStores(stores){
-  const g=document.getElementById('stores-grid');
-  if(!stores||!stores.length){g.innerHTML=`<div style="grid-column:1/-1" class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><h3>Sin tiendas</h3><p>Crea la primera con "+ Nueva Tienda"</p></div>`;return;}
-  g.innerHTML=stores.map(s=>{
-    const ini=(s.name||'?')[0].toUpperCase(),st=s.status||'active',pl=s.plan||'free';
-    const exp=s.licenseExpiry?new Date(s.licenseExpiry):null;
-    const dl=exp?Math.ceil((exp-new Date())/86400000):999;
-    const ec=dl<=0?'expired':dl<=7?'warn':'';
-    return `<div class="store-card ${st==='suspended'?'suspended':''}" onclick="openStoreDetail('${s.storeId}')">
-      <div class="store-card-header">
-        <div class="store-avatar">${ini}</div>
-        <div style="flex:1;min-width:0"><div class="store-name">${esc(s.name)}</div><div class="store-email">${esc(s.ownerEmail)}</div></div>
-      </div>
-      <div class="store-card-body">
-        <span class="badge ${st}">${st==='active'?'<span class="badge-dot"></span>':''}${st}</span>
-        <span class="badge ${pl}">${pl}</span>
-        ${ec?`<span class="badge ${ec}">${dl<=0?'Vencida':dl+'d restantes'}</span>`:''}
-      </div>
-      <div class="store-card-footer">
-        <div class="store-footer-stat">${esc(s.slug||'')}</div>
-        <div class="store-actions" onclick="event.stopPropagation()">
-          ${st==='active'?`<button class="btn danger sm" onclick="openSuspend('${s.storeId}')">Suspender</button>`:`<button class="btn sm" style="color:var(--accent)" onclick="doActivate('${s.storeId}')">Activar</button>`}
-          <button class="btn sm" onclick="openLicense('${s.storeId}','${pl}','${s.licenseExpiry||''}')">Licencia</button>
-        </div>
-      </div>
-    </div>`;
+function renderStores(stores) {
+  var g = document.getElementById('stores-grid');
+  if (!stores || !stores.length) {
+    g.innerHTML = '<div style="grid-column:1/-1" class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><h3>Sin tiendas</h3><p>Crea la primera con "+ Nueva Tienda"</p></div>';
+    return;
+  }
+  g.innerHTML = stores.map(function(s) {
+    var ini = (s.name||'?')[0].toUpperCase();
+    var st  = s.status || 'active';
+    var pl  = s.plan   || 'free';
+    var exp = s.licenseExpiry ? new Date(s.licenseExpiry) : null;
+    var dl  = exp ? Math.ceil((exp - new Date()) / 86400000) : 999;
+    var ec  = dl <= 0 ? 'expired' : dl <= 7 ? 'warn' : '';
+    return '<div class="store-card ' + (st==='suspended'?'suspended':'') + '" onclick="openStoreDetail(\'' + s.storeId + '\')">' +
+      '<div class="store-card-header">' +
+        '<div class="store-avatar">' + ini + '</div>' +
+        '<div style="flex:1;min-width:0"><div class="store-name">' + esc(s.name) + '</div><div class="store-email">' + esc(s.ownerEmail) + '</div></div>' +
+      '</div>' +
+      '<div class="store-card-body">' +
+        '<span class="badge ' + st + '">' + (st==='active'?'<span class="badge-dot"></span>':'') + st + '</span>' +
+        '<span class="badge ' + pl + '">' + pl + '</span>' +
+        (ec ? '<span class="badge ' + ec + '">' + (dl<=0?'Vencida':dl+'d restantes') + '</span>' : '') +
+      '</div>' +
+      '<div class="store-card-footer">' +
+        '<div class="store-footer-stat">' + esc(s.slug||'') + '</div>' +
+        '<div class="store-actions" onclick="event.stopPropagation()">' +
+          (st==='active' ?
+            '<button class="btn danger sm" onclick="openSuspend(\'' + s.storeId + '\')">Suspender</button>' :
+            '<button class="btn sm" style="color:var(--accent)" onclick="doActivate(\'' + s.storeId + '\')">Activar</button>'
+          ) +
+          '<button class="btn sm" onclick="openLicense(\'' + s.storeId + '\',\'' + pl + '\',\'' + (s.licenseExpiry||'') + '\')">Licencia</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
-function filterStores(){
-  const q=document.getElementById('search-stores').value.toLowerCase();
-  const st=document.getElementById('filter-status').value;
-  renderStores(ALL_STORES.filter(s=>(!q||(s.name||'').toLowerCase().includes(q)||(s.ownerEmail||'').toLowerCase().includes(q))&&(!st||s.status===st)));
+function filterStores() {
+  var q  = document.getElementById('search-stores').value.toLowerCase();
+  var st = document.getElementById('filter-status').value;
+  renderStores(ALL_STORES.filter(function(s) {
+    return (!q || (s.name||'').toLowerCase().includes(q) || (s.ownerEmail||'').toLowerCase().includes(q)) &&
+           (!st || s.status === st);
+  }));
 }
 
-function openStoreDetail(storeId){
+function openStoreDetail(storeId) {
   showPanel('store-detail');
-  const s=ALL_STORES.find(x=>x.storeId===storeId); if(!s)return;
-  const exp=s.licenseExpiry?new Date(s.licenseExpiry).toLocaleDateString('es-MX'):'N/D';
-  const cfg=s.config||{};
-  const storeUrl=buildStoreUrl(storeId);
-  const ownerUrl=buildOwnerUrl(storeId);
-  const ownerPhone=cfg.ownerPhone||'';
-  document.getElementById('store-detail-content').innerHTML=`
-    <div class="detail-header" style="justify-content:space-between">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div class="detail-avatar">${(s.name||'?')[0].toUpperCase()}</div>
-        <div><div style="font-size:18px;font-weight:600">${esc(s.name)}</div><div style="font-size:13px;color:var(--muted)">${esc(s.ownerEmail)}</div></div>
-      </div>
-      <div style="display:flex;gap:8px"><span class="badge ${s.status}">${s.status}</span><span class="badge ${s.plan}">${s.plan}</span></div>
-    </div>
-    <div class="detail-tabs">
-      <div class="dtab active" onclick="switchDtab(this,'dtab-info')">Información</div>
-      <div class="dtab" onclick="switchDtab(this,'dtab-license')">Licencia & URLs</div>
-      <div class="dtab" onclick="switchDtab(this,'dtab-sheet')">Google Sheet</div>
-      <div class="dtab" onclick="switchDtab(this,'dtab-actions')">Acciones</div>
-    </div>
-    <div class="detail-body">
-      <div id="dtab-info">
-        <div class="info-grid">
-          <div><div class="info-label">ID</div><div class="info-value" style="font-family:var(--mono);font-size:12px">${s.storeId}</div></div>
-          <div><div class="info-label">Slug</div><div class="info-value" style="font-family:var(--mono);font-size:12px">${s.slug||'—'}</div></div>
-          <div><div class="info-label">Plan</div><div class="info-value">${s.plan}</div></div>
-          <div><div class="info-label">Licencia vence</div><div class="info-value">${exp}</div></div>
-          <div><div class="info-label">Creada</div><div class="info-value">${s.createdAt?new Date(s.createdAt).toLocaleDateString('es-MX'):'N/D'}</div></div>
-          <div><div class="info-label">Teléfono dueño</div><div class="info-value">${esc(ownerPhone||'—')}</div></div>
-        </div>
-        ${s.suspendReason?`<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo: ${esc(s.suspendReason)}</div>`:''}
-      </div>
-      <div id="dtab-license" style="display:none">
-        <div style="margin-bottom:20px"><div class="info-label" style="margin-bottom:10px">URL tienda pública</div><div class="url-box"><span style="flex:1;word-break:break-all">${storeUrl||'⚠️ Configura URL base en Configuración'}</span>${storeUrl?`<button class="btn sm" onclick="copyText('${storeUrl}')">Copiar</button>`:''}</div>${storeUrl?`<div style="margin-top:8px"><a href="${storeUrl}" target="_blank" class="btn sm">Abrir →</a></div>`:''}</div>
-        <div style="margin-bottom:20px"><div class="info-label" style="margin-bottom:10px">URL panel dueño</div><div class="url-box"><span style="flex:1;word-break:break-all">${ownerUrl||'⚠️ Configura URL panel en Configuración'}</span>${ownerUrl?`<button class="btn sm" onclick="copyText('${ownerUrl}')">Copiar</button>`:''}</div></div>
-        <div style="margin-bottom:20px"><div class="info-label" style="margin-bottom:10px">Código de acceso del dueño (LK-...)</div><div class="url-box"><span style="flex:1;word-break:break-all;font-family:var(--mono);font-size:11px">${cfg.accessCode||\'— No disponible\'}</span>${cfg.accessCode?`<button class="btn sm" onclick="copyText(\'${cfg.accessCode}\')">Copiar</button>`:\'\'}</div><div style="font-size:11px;color:var(--muted);margin-top:5px">Este código es el que el dueño pega para acceder a su panel</div></div>
-        <hr class="divider">
-        <button class="btn wa" onclick="shareWhatsApp('${storeId}')" ${!ownerPhone?'disabled':''}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          WhatsApp ${ownerPhone?'('+ownerPhone+')':'— falta teléfono'}
-        </button>
-      </div>
-      <div id="dtab-sheet" style="display:none">
-        <div style="margin-bottom:16px"><div class="info-label" style="margin-bottom:8px">Sheet ID</div><div class="url-box">${s.sheetId||'N/D'} <button class="btn sm" onclick="copyText('${s.sheetId}')">Copiar</button></div></div>
-        <a href="https://docs.google.com/spreadsheets/d/${s.sheetId}" target="_blank" class="btn primary">Abrir Google Sheet</a>
-      </div>
-      <div id="dtab-actions" style="display:none">
-        ${s.status==='active'?`<button class="btn danger" style="margin-bottom:10px;width:100%" onclick="openSuspend('${s.storeId}')">Suspender tienda</button>`:`<button class="btn" style="margin-bottom:10px;width:100%;color:var(--accent)" onclick="doActivate('${s.storeId}')">Reactivar tienda</button>`}
-        <button class="btn warn" style="width:100%;margin-bottom:10px" onclick="openLicense('${s.storeId}','${s.plan}','${s.licenseExpiry||''}')">Cambiar plan / licencia</button>
-        <hr class="divider">
-        <button class="btn danger" style="width:100%" onclick="confirmDelete('${s.storeId}')">Eliminar tienda permanentemente</button>
-      </div>
-    </div>`;
+  var s = ALL_STORES.find(function(x){ return x.storeId === storeId; });
+  if (!s) return;
+  var exp        = s.licenseExpiry ? new Date(s.licenseExpiry).toLocaleDateString('es-MX') : 'N/D';
+  var cfg        = s.config || {};
+  var storeUrl   = buildStoreUrl(storeId);
+  var ownerUrl   = buildOwnerUrl(storeId);
+  var ownerPhone = cfg.ownerPhone || '';
+  var accessCode = cfg.accessCode || '';
+
+  document.getElementById('store-detail-content').innerHTML =
+    '<div class="detail-header" style="justify-content:space-between">' +
+      '<div style="display:flex;align-items:center;gap:14px">' +
+        '<div class="detail-avatar">' + (s.name||'?')[0].toUpperCase() + '</div>' +
+        '<div><div style="font-size:18px;font-weight:600">' + esc(s.name) + '</div><div style="font-size:13px;color:var(--muted)">' + esc(s.ownerEmail) + '</div></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px"><span class="badge ' + s.status + '">' + s.status + '</span><span class="badge ' + s.plan + '">' + s.plan + '</span></div>' +
+    '</div>' +
+    '<div class="detail-tabs">' +
+      '<div class="dtab active" onclick="switchDtab(this,\'dtab-info\')">Información</div>' +
+      '<div class="dtab" onclick="switchDtab(this,\'dtab-license\')">Licencia & URLs</div>' +
+      '<div class="dtab" onclick="switchDtab(this,\'dtab-sheet\')">Google Sheet</div>' +
+      '<div class="dtab" onclick="switchDtab(this,\'dtab-actions\')">Acciones</div>' +
+    '</div>' +
+    '<div class="detail-body">' +
+
+      '<div id="dtab-info">' +
+        '<div class="info-grid">' +
+          '<div><div class="info-label">ID</div><div class="info-value" style="font-family:var(--mono);font-size:12px">' + s.storeId + '</div></div>' +
+          '<div><div class="info-label">Slug</div><div class="info-value" style="font-family:var(--mono);font-size:12px">' + (s.slug||'—') + '</div></div>' +
+          '<div><div class="info-label">Plan</div><div class="info-value">' + s.plan + '</div></div>' +
+          '<div><div class="info-label">Licencia vence</div><div class="info-value">' + exp + '</div></div>' +
+          '<div><div class="info-label">Creada</div><div class="info-value">' + (s.createdAt ? new Date(s.createdAt).toLocaleDateString('es-MX') : 'N/D') + '</div></div>' +
+          '<div><div class="info-label">Teléfono dueño</div><div class="info-value">' + esc(ownerPhone||'—') + '</div></div>' +
+        '</div>' +
+        (s.suspendReason ? '<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo: ' + esc(s.suspendReason) + '</div>' : '') +
+      '</div>' +
+
+      '<div id="dtab-license" style="display:none">' +
+        '<div style="margin-bottom:16px">' +
+          '<div class="info-label" style="margin-bottom:8px">Código de acceso del dueño (LK-...)</div>' +
+          '<div class="url-box"><span style="flex:1;word-break:break-all;font-size:11px">' + (accessCode || '— No disponible') + '</span>' +
+          (accessCode ? '<button class="btn sm" onclick="copyText(\'' + accessCode + '\')">Copiar</button>' : '') + '</div>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:5px">Este es el código que el dueño pega para acceder a su panel</div>' +
+        '</div>' +
+        '<div style="margin-bottom:16px">' +
+          '<div class="info-label" style="margin-bottom:8px">URL tienda pública</div>' +
+          '<div class="url-box"><span style="flex:1;word-break:break-all">' + (storeUrl||'⚠️ Configura URL base en Configuración') + '</span>' +
+          (storeUrl ? '<button class="btn sm" onclick="copyText(\'' + storeUrl + '\')">Copiar</button>' : '') + '</div>' +
+          (storeUrl ? '<div style="margin-top:8px"><a href="' + storeUrl + '" target="_blank" class="btn sm">Abrir →</a></div>' : '') +
+        '</div>' +
+        '<div style="margin-bottom:16px">' +
+          '<div class="info-label" style="margin-bottom:8px">URL panel dueño</div>' +
+          '<div class="url-box"><span style="flex:1;word-break:break-all">' + (ownerUrl||'⚠️ Configura URL panel en Configuración') + '</span>' +
+          (ownerUrl ? '<button class="btn sm" onclick="copyText(\'' + ownerUrl + '\')">Copiar</button>' : '') + '</div>' +
+        '</div>' +
+        '<hr class="divider">' +
+        '<button class="btn wa" onclick="shareWhatsApp(\'' + storeId + '\')" ' + (!ownerPhone?'disabled':'') + '>' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>' +
+          ' WhatsApp ' + (ownerPhone ? '(' + ownerPhone + ')' : '— falta teléfono') +
+        '</button>' +
+      '</div>' +
+
+      '<div id="dtab-sheet" style="display:none">' +
+        '<div style="margin-bottom:16px"><div class="info-label" style="margin-bottom:8px">Sheet ID</div>' +
+        '<div class="url-box">' + (s.sheetId||'N/D') + ' <button class="btn sm" onclick="copyText(\'' + s.sheetId + '\')">Copiar</button></div></div>' +
+        '<a href="https://docs.google.com/spreadsheets/d/' + s.sheetId + '" target="_blank" class="btn primary">Abrir Google Sheet</a>' +
+      '</div>' +
+
+      '<div id="dtab-actions" style="display:none">' +
+        (s.status==='active' ?
+          '<button class="btn danger" style="margin-bottom:10px;width:100%" onclick="openSuspend(\'' + s.storeId + '\')">Suspender tienda</button>' :
+          '<button class="btn" style="margin-bottom:10px;width:100%;color:var(--accent)" onclick="doActivate(\'' + s.storeId + '\')">Reactivar tienda</button>'
+        ) +
+        '<button class="btn warn" style="width:100%;margin-bottom:10px" onclick="openLicense(\'' + s.storeId + '\',\'' + s.plan + '\',\'' + (s.licenseExpiry||'') + '\')">Cambiar plan / licencia</button>' +
+        '<hr class="divider">' +
+        '<button class="btn danger" style="width:100%" onclick="confirmDelete(\'' + s.storeId + '\')">Eliminar tienda permanentemente</button>' +
+      '</div>' +
+
+    '</div>';
 }
 
-function switchDtab(el,id){
-  el.closest('.store-detail').querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+function switchDtab(el, id) {
+  el.closest('.store-detail').querySelectorAll('.dtab').forEach(function(t){ t.classList.remove('active'); });
   el.classList.add('active');
-  el.closest('.store-detail').querySelectorAll('[id^=dtab-]').forEach(t=>t.style.display='none');
-  document.getElementById(id).style.display='block';
+  el.closest('.store-detail').querySelectorAll('[id^=dtab-]').forEach(function(t){ t.style.display='none'; });
+  document.getElementById(id).style.display = 'block';
 }
 
-function buildStoreUrl(storeId){ if(!STORE_BASE)return''; return`${STORE_BASE}?backend=${encodeURIComponent(BACKEND)}&store=${encodeURIComponent(storeId)}`; }
-function buildOwnerUrl(storeId){ if(!OWNER_BASE)return''; return`${OWNER_BASE}?backend=${encodeURIComponent(BACKEND)}&store=${encodeURIComponent(storeId)}`; }
-
-function shareWhatsApp(storeId){
-  const s=ALL_STORES.find(x=>x.storeId===storeId); if(!s)return;
-  const cfg=s.config||{};
-  const phone=(cfg.ownerPhone||'').replace(/\D/g,'');
-  if(!phone){toast('No hay teléfono configurado','warn');return;}
-  const msg=`Hola! Tu tienda *${s.name}* ya está lista 🎉\n\n🛍 Tienda: ${buildStoreUrl(storeId)}\n\n⚙️ Panel: ${buildOwnerUrl(storeId)}\n\n🔑 Código de acceso: ${cfg.accessCode||cfg.ownerToken||"(ver email)"}\n\n📊 Store ID: ${storeId}`;
-  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+function buildStoreUrl(storeId) {
+  if (!STORE_BASE) return '';
+  return STORE_BASE + '?backend=' + encodeURIComponent(BACKEND) + '&store=' + encodeURIComponent(storeId);
+}
+function buildOwnerUrl(storeId) {
+  if (!OWNER_BASE) return '';
+  return OWNER_BASE + '?backend=' + encodeURIComponent(BACKEND) + '&store=' + encodeURIComponent(storeId);
 }
 
-function renderAlerts(alerts){
-  if(!alerts||!alerts.length)return;
-  const html=alerts.slice(0,50).map(a=>`<div class="alert-item"><div class="alert-dot ${a.level||'info'}"></div><div><div class="alert-msg">${esc(a.message)}</div><div class="alert-meta">${a.storeId||''} · ${a.type||''} · ${a.createdAt?new Date(a.createdAt).toLocaleString('es-MX'):''}</div></div></div>`).join('');
-  document.getElementById('alerts-list').innerHTML=html;
-  document.getElementById('recent-alerts-wrap').innerHTML=alerts.slice(0,5).map(a=>`<div class="alert-item"><div class="alert-dot ${a.level||'info'}"></div><div><div class="alert-msg">${esc(a.message)}</div><div class="alert-meta">${a.storeId||''} · ${a.createdAt?new Date(a.createdAt).toLocaleString('es-MX'):''}</div></div></div>`).join('');
+function shareWhatsApp(storeId) {
+  var s = ALL_STORES.find(function(x){ return x.storeId === storeId; });
+  if (!s) return;
+  var cfg   = s.config || {};
+  var phone = (cfg.ownerPhone||'').replace(/\D/g,'');
+  if (!phone) { toast('No hay teléfono configurado','warn'); return; }
+  var code  = cfg.accessCode || cfg.ownerToken || '(ver email)';
+  var msg   = 'Hola! Tu tienda *' + s.name + '* ya está lista 🎉\n\n' +
+              '🛍 Tienda: ' + buildStoreUrl(storeId) + '\n\n' +
+              '⚙️ Panel: ' + buildOwnerUrl(storeId) + '\n\n' +
+              '🔑 Código de acceso:\n' + code + '\n\n' +
+              '📊 Store ID: ' + storeId;
+  window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
-async function createStore(){
-  const btn=document.getElementById('btn-create-store');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Creando...';
-  const name=document.getElementById('new-name').value.trim();
-  const slug=document.getElementById('new-slug').value.trim();
-  const email=document.getElementById('new-email').value.trim();
-  const phone=document.getElementById('new-phone').value.trim();
-  const logo=document.getElementById('new-logo').value.trim();
-  const plan=document.getElementById('new-plan').value;
-  if(!name||!email||!phone){toast('Nombre, email y teléfono son requeridos','error');btn.disabled=false;btn.textContent='Crear tienda';return;}
-  const res=await api('admin.store.create',{name,slug,ownerEmail:email,plan,ownerPhone:phone,logoUrl:logo});
-  btn.disabled=false; btn.textContent='Crear tienda';
-  if(!res)return;
-  await api('admin.store.update',{storeId:res.storeId,configExtra:{ownerPhone:phone,ownerToken:res.ownerToken,logo}});
+function renderAlerts(alerts) {
+  if (!alerts || !alerts.length) return;
+  var html = alerts.slice(0,50).map(function(a) {
+    return '<div class="alert-item"><div class="alert-dot ' + (a.level||'info') + '"></div>' +
+           '<div><div class="alert-msg">' + esc(a.message) + '</div>' +
+           '<div class="alert-meta">' + (a.storeId||'') + ' · ' + (a.type||'') + ' · ' + (a.createdAt ? new Date(a.createdAt).toLocaleString('es-MX') : '') + '</div></div></div>';
+  }).join('');
+  document.getElementById('alerts-list').innerHTML = html;
+  document.getElementById('recent-alerts-wrap').innerHTML = alerts.slice(0,5).map(function(a) {
+    return '<div class="alert-item"><div class="alert-dot ' + (a.level||'info') + '"></div>' +
+           '<div><div class="alert-msg">' + esc(a.message) + '</div>' +
+           '<div class="alert-meta">' + (a.storeId||'') + ' · ' + (a.createdAt ? new Date(a.createdAt).toLocaleString('es-MX') : '') + '</div></div></div>';
+  }).join('');
+}
+
+async function createStore() {
+  var btn   = document.getElementById('btn-create-store');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creando...';
+  var name  = document.getElementById('new-name').value.trim();
+  var slug  = document.getElementById('new-slug').value.trim();
+  var email = document.getElementById('new-email').value.trim();
+  var phone = document.getElementById('new-phone').value.trim();
+  var logo  = document.getElementById('new-logo').value.trim();
+  var plan  = document.getElementById('new-plan').value;
+  if (!name || !email || !phone) {
+    toast('Nombre, email y teléfono son requeridos','error');
+    btn.disabled = false; btn.textContent = 'Crear tienda'; return;
+  }
+  var res = await api('admin.store.create', { name:name, slug:slug, ownerEmail:email, plan:plan, ownerPhone:phone, logoUrl:logo });
+  btn.disabled = false; btn.textContent = 'Crear tienda';
+  if (!res) return;
+  await api('admin.store.update', { storeId: res.storeId, configExtra: { ownerPhone:phone, ownerToken:res.ownerToken, accessCode:res.accessCode, logo:logo } });
   await refreshData();
-  const storeUrl=buildStoreUrl(res.storeId);
-  const ownerUrl=buildOwnerUrl(res.storeId);
-  const waPhone=phone.replace(/\D/g,'');
-  const waMsg=`Hola! Tu tienda *${name}* ya está lista 🎉\n\n🛍 Tienda: ${storeUrl}\n\n⚙️ Panel: ${ownerUrl}\n\n🔑 Código de acceso: ${res.accessCode}\n\n📊 Store ID: ${res.storeId}`;
-  document.getElementById('create-store-body').innerHTML=`
-    <div class="create-success">
-      <div class="create-success-title">✅ Tienda creada exitosamente</div>
-      <div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">URL tienda pública</div><div class="url-box">${storeUrl||'— Configura URL base'} ${storeUrl?`<button class="btn sm" onclick="copyText('${storeUrl}')">Copiar</button>`:''}</div></div>
-      <div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">URL panel dueño</div><div class="url-box">${ownerUrl||'— Configura URL panel'} ${ownerUrl?`<button class="btn sm" onclick="copyText('${ownerUrl}')">Copiar</button>`:''}</div></div>
-      <div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">Código de acceso del dueño (LK-...)</div><div class="url-box"><span style="font-family:var(--mono);font-size:12px">${res.accessCode}</span><button class="btn sm" onclick="copyText('${res.accessCode}')">Copiar</button></div></div>
-    </div>
-    <div style="font-size:13px;color:var(--muted)">Token enviado por email a <strong>${email}</strong></div>`;
-  document.getElementById('create-store-footer').innerHTML=`
-    <button class="btn" onclick="resetCreateModal()">Crear otra</button>
-    <a href="https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}" target="_blank" class="btn wa">📱 Enviar por WhatsApp</a>
-    <button class="btn ghost" onclick="closeModal('create-store');resetCreateModal()">Cerrar</button>`;
+  var storeUrl = buildStoreUrl(res.storeId);
+  var ownerUrl = buildOwnerUrl(res.storeId);
+  var waPhone  = phone.replace(/\D/g,'');
+  var waMsg    = 'Hola! Tu tienda *' + name + '* ya está lista 🎉\n\n🛍 Tienda: ' + storeUrl + '\n\n⚙️ Panel: ' + ownerUrl + '\n\n🔑 Código de acceso:\n' + res.accessCode + '\n\n📊 Store ID: ' + res.storeId;
+  document.getElementById('create-store-body').innerHTML =
+    '<div class="create-success">' +
+      '<div class="create-success-title">✅ Tienda creada exitosamente</div>' +
+      '<div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">Código de acceso del dueño (LK-...)</div>' +
+      '<div class="url-box"><span style="flex:1;word-break:break-all;font-size:11px">' + res.accessCode + '</span><button class="btn sm" onclick="copyText(\'' + res.accessCode + '\')">Copiar</button></div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:4px">El dueño pega este código para acceder a su panel</div></div>' +
+      '<div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">URL tienda pública</div>' +
+      '<div class="url-box"><span style="flex:1;word-break:break-all">' + (storeUrl||'— Configura URL base') + '</span>' + (storeUrl?'<button class="btn sm" onclick="copyText(\'' + storeUrl + '\')">Copiar</button>':'') + '</div></div>' +
+      '<div style="margin-bottom:12px"><div class="info-label" style="margin-bottom:6px">URL panel dueño</div>' +
+      '<div class="url-box"><span style="flex:1;word-break:break-all">' + (ownerUrl||'— Configura URL panel') + '</span>' + (ownerUrl?'<button class="btn sm" onclick="copyText(\'' + ownerUrl + '\')">Copiar</button>':'') + '</div></div>' +
+    '</div>' +
+    '<div style="font-size:13px;color:var(--muted)">Código también enviado por email a <strong>' + email + '</strong></div>';
+  document.getElementById('create-store-footer').innerHTML =
+    '<button class="btn" onclick="resetCreateModal()">Crear otra</button>' +
+    '<a href="https://wa.me/' + waPhone + '?text=' + encodeURIComponent(waMsg) + '" target="_blank" class="btn wa">📱 Enviar por WhatsApp</a>' +
+    '<button class="btn ghost" onclick="closeModal(\'create-store\');resetCreateModal()">Cerrar</button>';
 }
 
-function resetCreateModal(){
-  document.getElementById('create-store-body').innerHTML=`
-    <div class="field-row">
-      <div class="field"><label>Nombre *</label><input id="new-name" placeholder="Mi Tienda"/></div>
-      <div class="field"><label>Slug *</label><input id="new-slug" placeholder="mi-tienda"/></div>
-    </div>
-    <div class="field-row">
-      <div class="field"><label>Email del dueño *</label><input type="email" id="new-email" placeholder="dueno@gmail.com"/></div>
-      <div class="field"><label>Teléfono WhatsApp *</label><input type="tel" id="new-phone" placeholder="+52 555 000 0000"/></div>
-    </div>
-    <div class="field"><label>URL del logo</label><input id="new-logo" placeholder="https://..."/></div>
-    <div class="field-row">
-      <div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>
-      <div class="field"><label>Vencimiento</label><input type="date" id="new-expiry"/></div>
-    </div>`;
-  document.getElementById('create-store-footer').innerHTML=`<button class="btn" onclick="closeModal('create-store')">Cancelar</button><button class="btn primary" onclick="createStore()" id="btn-create-store">Crear tienda</button>`;
-  const d=new Date(); d.setDate(d.getDate()+14);
-  document.getElementById('new-expiry').value=d.toISOString().slice(0,10);
-  document.getElementById('new-name').addEventListener('input',e=>{ document.getElementById('new-slug').value=e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); });
+function resetCreateModal() {
+  document.getElementById('create-store-body').innerHTML =
+    '<div class="field-row">' +
+      '<div class="field"><label>Nombre *</label><input id="new-name" placeholder="Mi Tienda"/></div>' +
+      '<div class="field"><label>Slug *</label><input id="new-slug" placeholder="mi-tienda"/></div>' +
+    '</div>' +
+    '<div class="field-row">' +
+      '<div class="field"><label>Email del dueño *</label><input type="email" id="new-email" placeholder="dueno@gmail.com"/></div>' +
+      '<div class="field"><label>Teléfono WhatsApp *</label><input type="tel" id="new-phone" placeholder="+52 555 000 0000"/></div>' +
+    '</div>' +
+    '<div class="field"><label>URL del logo</label><input id="new-logo" placeholder="https://..."/></div>' +
+    '<div class="field-row">' +
+      '<div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>' +
+      '<div class="field"><label>Vencimiento</label><input type="date" id="new-expiry"/></div>' +
+    '</div>';
+  document.getElementById('create-store-footer').innerHTML =
+    '<button class="btn" onclick="closeModal(\'create-store\')">Cancelar</button>' +
+    '<button class="btn primary" onclick="createStore()" id="btn-create-store">Crear tienda</button>';
+  var d = new Date(); d.setDate(d.getDate()+14);
+  document.getElementById('new-expiry').value = d.toISOString().slice(0,10);
+  document.getElementById('new-name').addEventListener('input', function(e) {
+    document.getElementById('new-slug').value = e.target.value.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  });
 }
 
-function openSuspend(storeId){document.getElementById('suspend-store-id').value=storeId;document.getElementById('suspend-reason').value='';openModal('suspend');}
-async function doSuspend(){const res=await api('admin.store.suspend',{storeId:document.getElementById('suspend-store-id').value,reason:document.getElementById('suspend-reason').value});if(!res)return;closeModal('suspend');toast('Tienda suspendida','warn');refreshData();}
-async function doActivate(storeId){const res=await api('admin.store.activate',{storeId});if(!res)return;toast('Tienda reactivada','success');refreshData();}
-function openLicense(storeId,plan,expiry){document.getElementById('license-store-id').value=storeId;document.getElementById('license-plan').value=plan||'free';document.getElementById('license-expiry').value=expiry?expiry.slice(0,10):'';openModal('license');}
-async function saveLicense(){const res=await api('admin.license.set',{storeId:document.getElementById('license-store-id').value,plan:document.getElementById('license-plan').value,expiryDate:document.getElementById('license-expiry').value});if(!res)return;closeModal('license');toast('Licencia actualizada','success');refreshData();}
-async function confirmDelete(storeId){if(!confirm('⚠️ Eliminar tienda permanentemente. ¿Confirmar?'))return;const res=await api('admin.store.delete',{storeId});if(!res)return;showPanel('stores');toast('Tienda eliminada','warn');refreshData();}
-function saveSettings(){STORE_BASE=document.getElementById('cfg-store-base-url').value.trim();OWNER_BASE=document.getElementById('cfg-owner-panel-url').value.trim();localStorage.setItem('lk_store_base',STORE_BASE);localStorage.setItem('lk_owner_base',OWNER_BASE);toast('Configuración guardada','success');}
-function openModal(id){document.getElementById('modal-'+id).classList.add('open');}
-function closeModal(id){document.getElementById('modal-'+id).classList.remove('open');}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function copyText(t){navigator.clipboard.writeText(t||'');toast('Copiado','success');}
-function toast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className=type;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3500);}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+function openSuspend(storeId) { document.getElementById('suspend-store-id').value=storeId; document.getElementById('suspend-reason').value=''; openModal('suspend'); }
+async function doSuspend() { var res=await api('admin.store.suspend',{storeId:document.getElementById('suspend-store-id').value,reason:document.getElementById('suspend-reason').value}); if(!res)return; closeModal('suspend'); toast('Tienda suspendida','warn'); refreshData(); }
+async function doActivate(storeId) { var res=await api('admin.store.activate',{storeId:storeId}); if(!res)return; toast('Tienda reactivada','success'); refreshData(); }
+function openLicense(storeId,plan,expiry) { document.getElementById('license-store-id').value=storeId; document.getElementById('license-plan').value=plan||'free'; document.getElementById('license-expiry').value=expiry?expiry.slice(0,10):''; openModal('license'); }
+async function saveLicense() { var res=await api('admin.license.set',{storeId:document.getElementById('license-store-id').value,plan:document.getElementById('license-plan').value,expiryDate:document.getElementById('license-expiry').value}); if(!res)return; closeModal('license'); toast('Licencia actualizada','success'); refreshData(); }
+async function confirmDelete(storeId) { if(!confirm('⚠️ Eliminar tienda permanentemente. ¿Confirmar?'))return; var res=await api('admin.store.delete',{storeId:storeId}); if(!res)return; showPanel('stores'); toast('Tienda eliminada','warn'); refreshData(); }
+
+function saveSettings() {
+  STORE_BASE = document.getElementById('cfg-store-base-url').value.trim();
+  OWNER_BASE = document.getElementById('cfg-owner-panel-url').value.trim();
+  localStorage.setItem('lk_store_base', STORE_BASE);
+  localStorage.setItem('lk_owner_base', OWNER_BASE);
+  toast('Configuración guardada','success');
+}
+
+function openModal(id)  { document.getElementById('modal-'+id).classList.add('open'); }
+function closeModal(id) { document.getElementById('modal-'+id).classList.remove('open'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function copyText(t) { navigator.clipboard.writeText(t||''); toast('Copiado','success'); }
+function toast(msg,type) {
+  type = type || 'success';
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = type; el.style.display = 'block';
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display='none'; }, 3500);
+}
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('open'); });
+});
 </script>
 </body>
 </html>
