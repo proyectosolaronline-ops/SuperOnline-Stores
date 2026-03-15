@@ -404,35 +404,20 @@ function showLoginErr(msg) {
 function logout(){ localStorage.removeItem('lk_token'); AUTH_TOKEN=''; location.reload(); }
 
 // ── API ───────────────────────────────────────────────────────
-async function api(action, data={}, method='POST') {
+async function api(action, data={}) {
   try {
     let res;
-    if (method==='GET') {
-      res = await fetch(`${BACKEND}?action=${action}&token=${encodeURIComponent(AUTH_TOKEN)}`);
-    } else {
-      res = await fetch(BACKEND, {
-        method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify({action, token:AUTH_TOKEN, ...data})
-      });
-    }
-    const json = await res.json();
-    if (json.error && !json.token) throw new Error(json.error);
-    return json;
-  } catch(e) { toast(e.message,'error'); return null; }
-}
-
+    res = await fetch(BACKEND, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action, token:AUTH_TOKEN, ...data})
+    });
 // ── DATA ──────────────────────────────────────────────────────
 async function refreshData() {
-  const [s,st,al] = await Promise.all([
-    api('admin.stats',{},'GET'),
-    api('admin.stores.list',{},'GET'),
-    api('admin.alerts.list',{},'GET'),
+const [s,st,al] = await Promise.all([
+    api('admin.stats'),
+    api('admin.stores.list'),
+    api('admin.alerts.list'),
   ]);
-  if (s)  renderStats(s);
-  if (st) { ALL_STORES=st.stores||[]; renderStores(ALL_STORES); }
-  if (al) renderAlerts(al.alerts);
-}
-
 // ── PANELS ────────────────────────────────────────────────────
 function showPanel(name) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
