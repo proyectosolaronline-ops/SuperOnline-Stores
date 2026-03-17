@@ -418,10 +418,14 @@
 <div id="toast"></div>
 
 <script>
-const BACKEND  = 'https://script.google.com/macros/s/AKfycbxrdW7sLSiJNq_XF_xDjDgBl2rJppwwoRsEe-mNE8G-2BWOcI7DpyJpQYsyN8M-x-I/exec';
+// const BACKEND  = 'https://script.google.com/macros/s/AKfycbxrdW7sLSiJNq_XF_xDjDgBl2rJppwwoRsEe-mNE8G-2BWOcI7DpyJpQYsyN8M-x-I/exec';
+const BACKEND = 'https://script.google.com/macros/s/AKfycbznj6hXKUKqoM5lnOP_kC78LCve60Ekw0HQjLcqMA/dev';  
 let AUTH_TOKEN = localStorage.getItem('lk_token')      || '';
-let STORE_BASE = localStorage.getItem('lk_store_base') || 'https://proyectosolaronline-ops.github.io/superOnline-Tienda/index.html';
-let OWNER_BASE = localStorage.getItem('lk_owner_base') || 'https://proyectosolaronline-ops.github.io/Owner-super-Online/index.html';
+// let STORE_BASE = localStorage.getItem('lk_store_base') || 'https://proyectosolaronline-ops.github.io/superOnline-Tienda/index.html';
+// let OWNER_BASE = localStorage.getItem('lk_owner_base') || 'https://proyectosolaronline-ops.github.io/Owner-super-Online/index.html';
+let STORE_BASE = localStorage.getItem('lk_store_base') || 'https://proyectosolaronline-ops.github.io/superOnline-Tienda/';
+let OWNER_BASE = localStorage.getItem('lk_owner_base') || 'https://proyectosolaronline-ops.github.io/Owner-super-Online/';
+
 let ALL_STORES = [];
 
 window.addEventListener('load', () => {
