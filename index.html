@@ -607,8 +607,7 @@ function openStoreDetail(storeId) {
           '<div><div class="info-label">Creada</div><div class="info-value">' + (s.createdAt ? new Date(s.createdAt).toLocaleDateString('es-MX') : 'N/D') + '</div></div>' +
           '<div><div class="info-label">Teléfono dueño</div><div class="info-value">' + esc(ownerPhone||'—') + '</div></div>' +
           '<div><div class="info-label">Banner</div><div class="info-value">' + esc(cfg.bannerMessage||'—') + '</div></div>' +
-          '<div><div class="info-label">Ubicación</div><div class="info-value">' + esc(cfg.storeLocation||'—') + '</div></div>' +
-        '</div>'  + esc(ownerPhone||'—') + '</div></div>' +
+        '<div><div class="info-label">Ubicación</div><div class="info-value">' + esc(cfg.storeLocation||'—') + '</div></div>' +
         '</div>' +
         (s.suspendReason ? '<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo: ' + esc(s.suspendReason) + '</div>' : '') +
       '</div>' +
