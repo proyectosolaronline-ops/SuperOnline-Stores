@@ -366,6 +366,8 @@
         <div class="field"><label>Teléfono WhatsApp *</label><input type="tel" id="new-phone" placeholder="+52 555 000 0000"/></div>
       </div>
       <div class="field"><label>URL del logo (opcional)</label><input id="new-logo" placeholder="https://..."/></div>
+      <div class="field"><label>Mensaje banner (opcional)</label><input id="new-banner" placeholder="Ej: 🔥 Envío gratis en pedidos mayores a $500"/></div>
+      <div class="field"><label>Ubicación de la tienda (opcional)</label><input id="new-location" placeholder="Ej: Querétaro, México"/></div>
       <div class="field-row">
         <div class="field"><label>Plan</label>
           <select id="new-plan">
@@ -604,6 +606,9 @@ function openStoreDetail(storeId) {
           '<div><div class="info-label">Licencia vence</div><div class="info-value">' + exp + '</div></div>' +
           '<div><div class="info-label">Creada</div><div class="info-value">' + (s.createdAt ? new Date(s.createdAt).toLocaleDateString('es-MX') : 'N/D') + '</div></div>' +
           '<div><div class="info-label">Teléfono dueño</div><div class="info-value">' + esc(ownerPhone||'—') + '</div></div>' +
+          '<div><div class="info-label">Banner</div><div class="info-value">' + esc(cfg.bannerMessage||'—') + '</div></div>' +
+          '<div><div class="info-label">Ubicación</div><div class="info-value">' + esc(cfg.storeLocation||'—') + '</div></div>' +
+        '</div>'  + esc(ownerPhone||'—') + '</div></div>' +
         '</div>' +
         (s.suspendReason ? '<div style="margin-top:16px;padding:12px;background:#f8717111;border:1px solid #f8717133;border-radius:8px;font-size:13px;color:var(--danger)">Motivo: ' + esc(s.suspendReason) + '</div>' : '') +
       '</div>' +
@@ -706,12 +711,14 @@ async function createStore() {
   var email = document.getElementById('new-email').value.trim();
   var phone = document.getElementById('new-phone').value.trim();
   var logo  = document.getElementById('new-logo').value.trim();
+  var banner   = document.getElementById('new-banner').value.trim();
+  var location = document.getElementById('new-location').value.trim();
   var plan  = document.getElementById('new-plan').value;
   if (!name || !email || !phone) {
     toast('Nombre, email y teléfono son requeridos','error');
     btn.disabled = false; btn.textContent = 'Crear tienda'; return;
   }
-  var res = await api('admin.store.create', { name:name, slug:slug, ownerEmail:email, plan:plan, ownerPhone:phone, logoUrl:logo });
+  var res = await api('admin.store.create', { name:name, slug:slug, ownerEmail:email, plan:plan, ownerPhone:phone, logoUrl:logo, bannerMessage:banner, storeLocation:location });
   btn.disabled = false; btn.textContent = 'Crear tienda';
   if (!res) return;
   await api('admin.store.update', { storeId: res.storeId, configExtra: { ownerPhone:phone, ownerToken:res.ownerToken, accessCode:res.accessCode, logo:logo } });
@@ -749,6 +756,8 @@ function resetCreateModal() {
       '<div class="field"><label>Teléfono WhatsApp *</label><input type="tel" id="new-phone" placeholder="+52 555 000 0000"/></div>' +
     '</div>' +
     '<div class="field"><label>URL del logo</label><input id="new-logo" placeholder="https://..."/></div>' +
+'<div class="field"><label>Mensaje banner</label><input id="new-banner" placeholder="Ej: 🔥 Envío gratis en pedidos mayores a $500"/></div>' +
+    '<div class="field"><label>Ubicación de la tienda</label><input id="new-location" placeholder="Ej: Querétaro, México"/></div>' +
     '<div class="field-row">' +
       '<div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>' +
       '<div class="field"><label>Vencimiento</label><input type="date" id="new-expiry"/></div>' +
