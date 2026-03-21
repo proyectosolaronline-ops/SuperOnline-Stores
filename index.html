@@ -365,6 +365,12 @@
         <div class="field"><label>Email del dueño (Gmail) *</label><input type="email" id="new-email" placeholder="dueno@gmail.com"/></div>
         <div class="field"><label>Teléfono WhatsApp *</label><input type="tel" id="new-phone" placeholder="+52 555 000 0000"/></div>
       </div>
+      <div class="field"><label>Tipo de negocio</label>
+        <select id="new-business-type">
+          <option value="regular">Regular — sin precios mayoristas</option>
+          <option value="mayorista">Mayorista — habilita precios y registro mayorista</option>
+        </select>
+      </div>
       <div class="field"><label>URL del logo (opcional)</label><input id="new-logo" placeholder="https://..."/></div>
       <div class="field"><label>Mensaje banner (opcional)</label><input id="new-banner" placeholder="Ej: 🔥 Envío gratis en pedidos mayores a $500"/></div>
       <div class="field"><label>Ubicación de la tienda (opcional)</label><input id="new-location" placeholder="Ej: Querétaro, México"/></div>
@@ -642,7 +648,26 @@ function openStoreDetail(storeId) {
         '<div class="url-box">' + (s.sheetId||'N/D') + ' <button class="btn sm" onclick="copyText(\'' + s.sheetId + '\')">Copiar</button></div></div>' +
         '<a href="https://docs.google.com/spreadsheets/d/' + s.sheetId + '" target="_blank" class="btn primary">Abrir Google Sheet</a>' +
       '</div>' +
-
+'<div id="dtab-actions" style="display:none">' +
+        '<div style="margin-bottom:20px">' +
+          '<div class="info-label" style="margin-bottom:8px">Editar nombre de tienda</div>' +
+          '<div style="display:flex;gap:8px">' +
+            '<input id="edit-store-name-' + s.storeId + '" style="flex:1;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--font)" value="' + esc(s.name) + '"/>' +
+            '<button class="btn primary sm" onclick="saveStoreName(\'' + s.storeId + '\')">Guardar</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-bottom:20px">' +
+          '<div class="info-label" style="margin-bottom:8px">Tipo de negocio</div>' +
+          '<div style="display:flex;gap:8px;align-items:center">' +
+            '<select id="edit-store-btype-' + s.storeId + '" style="flex:1;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--font)">' +
+              '<option value="regular"' + (cfg.businessType!=='mayorista'?' selected':'') + '>Regular — sin precios mayoristas</option>' +
+              '<option value="mayorista"' + (cfg.businessType==='mayorista'?' selected':'') + '>Mayorista — habilita precios y registro mayorista</option>' +
+            '</select>' +
+            '<button class="btn primary sm" onclick="saveStoreBusinessType(\'' + s.storeId + '\')">Guardar</button>' +
+          '</div>' +
+        '</div>' +
+        '<hr class="divider">' +
+        (s.status==='active' ?
       '<div id="dtab-actions" style="display:none">' +
         (s.status==='active' ?
           '<button class="btn danger" style="margin-bottom:10px;width:100%" onclick="openSuspend(\'' + s.storeId + '\')">Suspender tienda</button>' :
@@ -717,7 +742,8 @@ async function createStore() {
     toast('Nombre, email y teléfono son requeridos','error');
     btn.disabled = false; btn.textContent = 'Crear tienda'; return;
   }
-  var res = await api('admin.store.create', { name:name, slug:slug, ownerEmail:email, plan:plan, ownerPhone:phone, logoUrl:logo, bannerMessage:banner, storeLocation:location });
+  var businessType = document.getElementById('new-business-type').value;
+  var res = await api('admin.store.create', { name:name, slug:slug, ownerEmail:email, plan:plan, ownerPhone:phone, logoUrl:logo, bannerMessage:banner, storeLocation:location, businessType:businessType });
   btn.disabled = false; btn.textContent = 'Crear tienda';
   if (!res) return;
   await api('admin.store.update', { storeId: res.storeId, configExtra: { ownerPhone:phone, ownerToken:res.ownerToken, accessCode:res.accessCode, logo:logo } });
@@ -812,6 +838,28 @@ document.querySelectorAll('.nav-item').forEach(function(item){
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click', function(e){ if(e.target===o) o.classList.remove('open'); });
 });
+
+  async function saveStoreName(storeId) {
+  var input = document.getElementById('edit-store-name-' + storeId);
+  if (!input || !input.value.trim()) { toast('Escribe un nombre válido','error'); return; }
+  var res = await api('admin.store.update', { storeId: storeId, name: input.value.trim() });
+  if (!res) return;
+  // Actualizar en memoria
+  var s = ALL_STORES.find(function(x){ return x.storeId===storeId; });
+  if (s) s.name = input.value.trim();
+  toast('Nombre actualizado','success');
+  refreshData();
+}
+
+async function saveStoreBusinessType(storeId) {
+  var sel = document.getElementById('edit-store-btype-' + storeId);
+  if (!sel) return;
+  var res = await api('admin.store.update', { storeId: storeId, configExtra: { businessType: sel.value } });
+  if (!res) return;
+  var s = ALL_STORES.find(function(x){ return x.storeId===storeId; });
+  if (s && s.config) s.config.businessType = sel.value;
+  toast('Tipo de negocio actualizado','success');
+}
 </script>
 </body>
 </html>
