@@ -668,8 +668,6 @@ function openStoreDetail(storeId) {
         '</div>' +
         '<hr class="divider">' +
         (s.status==='active' ?
-      '<div id="dtab-actions" style="display:none">' +
-        (s.status==='active' ?
           '<button class="btn danger" style="margin-bottom:10px;width:100%" onclick="openSuspend(\'' + s.storeId + '\')">Suspender tienda</button>' :
           '<button class="btn" style="margin-bottom:10px;width:100%;color:var(--accent)" onclick="doActivate(\'' + s.storeId + '\')">Reactivar tienda</button>'
         ) +
@@ -677,9 +675,9 @@ function openStoreDetail(storeId) {
         '<hr class="divider">' +
         '<button class="btn danger" style="width:100%" onclick="confirmDelete(\'' + s.storeId + '\')">Eliminar tienda permanentemente</button>' +
       '</div>' +
-
     '</div>';
 }
+function switchDtab(el, id) {
 
 function switchDtab(el, id) {
   el.closest('.store-detail').querySelectorAll('.dtab').forEach(function(t){ t.classList.remove('active'); });
