@@ -75,7 +75,7 @@
   .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:500}
   .badge.active{background:#00d98b22;color:var(--accent)}.badge.suspended{background:#f8717122;color:var(--danger)}
   .badge.expired{background:#fbbf2422;color:var(--warn)}.badge.free{background:var(--surface2);color:var(--muted)}
-  .badge.starter{background:#60a5fa22;color:var(--info)}.badge.pro{background:#a78bfa22;color:#a78bfa}
+  .badge.light{background:#dcfce722;color:#16a34a}.badge.standard{background:#60a5fa22;color:var(--info)}.badge.full{background:#a78bfa22;color:#a78bfa}
   .badge-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
   .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
   .alert-item{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:flex-start}
@@ -399,9 +399,10 @@
       <div class="field-row">
         <div class="field"><label>Plan</label>
           <select id="new-plan">
-            <option value="free">Free (10 productos, 50 pedidos/mes)</option>
-            <option value="starter">Starter (50 productos, 500 pedidos/mes)</option>
-            <option value="pro">Pro (ilimitado)</option>
+           <option value="free">Free — Trial 14 dias (catalogo + WhatsApp)</option>
+<option value="light">Light — 50 productos, catalogo + PDF + WhatsApp</option>
+<option value="standard">Standard — 100 productos, pedidos y clientes</option>
+<option value="full">Full — Ilimitado, mayoristas incluidos</option>
           </select>
         </div>
         <div class="field"><label>Vencimiento de licencia</label><input type="date" id="new-expiry"/></div>
@@ -420,7 +421,8 @@
     <div class="modal-header"><div class="modal-title">Gestionar licencia</div><button class="btn ghost sm" onclick="closeModal('license')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="license-store-id">
-      <div class="field"><label>Plan</label><select id="license-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>
+      <div class="field"><label>Plan</label>
+        <select id="license-plan"><option value="free">Free (Trial)</option><option value="light">Light</option><option value="standard">Standard</option><option value="full">Full</option></select></div>
       <div class="field"><label>Fecha de vencimiento</label><input type="date" id="license-expiry"/></div>
     </div>
     <div class="modal-footer">
@@ -899,7 +901,7 @@ function resetCreateModal() {
     '<div class="field"><label>Mensaje banner</label><input id="new-banner" placeholder="Envio gratis en pedidos mayores a $500"/></div>' +
     '<div class="field"><label>Ubicacion de la tienda</label><input id="new-location" placeholder="Queretaro, Mexico"/></div>' +
     '<div class="field-row">' +
-      '<div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free</option><option value="starter">Starter</option><option value="pro">Pro</option></select></div>' +
+    '<div class="field"><label>Plan</label><select id="new-plan"><option value="free">Free Trial</option><option value="light">Light</option><option value="standard">Standard</option><option value="full">Full</option></select></div>'+
       '<div class="field"><label>Vencimiento</label><input type="date" id="new-expiry"/></div>' +
     '</div>';
   document.getElementById('create-store-footer').innerHTML =
