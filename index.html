@@ -654,6 +654,75 @@ function openStoreDetail(storeId) {
   var ownerPhone = cfg.ownerPhone || '';
   var accessCode = cfg.accessCode || '';
   var isAdmin1   = (ADMIN_ROLE === 'admin1');
+  var credsTab = '<div id="dtab-creds" style="display:none">' +
+
+  // ── Aviso de seguridad ──────────────────────────────────
+  '<div style="background:#fbbf2411;border:1px solid #fbbf2433;border-radius:8px;' +
+  'padding:10px 14px;font-size:12px;color:var(--warn);margin-bottom:20px">' +
+  '⚠️ Información sensible. Solo visible para administradores.' +
+  '</div>' +
+
+  // ── Código de acceso LK- ────────────────────────────────
+  '<div style="margin-bottom:20px">' +
+    '<div class="info-label" style="margin-bottom:6px">Código de acceso (LK-...)</div>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+      '<input id="cred-code-' + s.storeId + '" ' +
+        'style="flex:1;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);' +
+        'border-radius:8px;color:var(--text);font-size:13px;font-family:var(--mono)" ' +
+        'value="' + esc(accessCode) + '" placeholder="LK-xxxxxxxx"/>' +
+      '<button class="btn sm" onclick="copyText(document.getElementById(\'cred-code-' + s.storeId + '\').value)">Copiar</button>' +
+    '</div>' +
+  '</div>' +
+
+  // ── Contraseña del dueño ────────────────────────────────
+  '<div style="margin-bottom:20px">' +
+    '<div class="info-label" style="margin-bottom:6px">Contraseña del dueño</div>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+      '<input id="cred-pass-' + s.storeId + '" type="password" ' +
+        'style="flex:1;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);' +
+        'border-radius:8px;color:var(--text);font-size:13px;font-family:var(--font)" ' +
+        'value="' + esc(cfg.ownerPassword || '') + '" placeholder="Contraseña actual o nueva"/>' +
+      '<button class="btn sm" onclick="togglePassVis(\'cred-pass-' + s.storeId + '\')">👁</button>' +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--muted);margin-top:4px">' +
+      'Dejar vacío para no modificar la contraseña existente.' +
+    '</div>' +
+  '</div>' +
+
+  // ── Email del dueño ─────────────────────────────────────
+  '<div style="margin-bottom:20px">' +
+    '<div class="info-label" style="margin-bottom:6px">Email del dueño</div>' +
+    '<input id="cred-email-' + s.storeId + '" type="email" ' +
+      'style="width:100%;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);' +
+      'border-radius:8px;color:var(--text);font-size:14px;font-family:var(--font)" ' +
+      'value="' + esc(s.ownerEmail) + '" placeholder="dueno@gmail.com"/>' +
+  '</div>' +
+
+  // ── Teléfono WhatsApp ───────────────────────────────────
+  '<div style="margin-bottom:24px">' +
+    '<div class="info-label" style="margin-bottom:6px">Teléfono WhatsApp</div>' +
+    '<input id="cred-phone-' + s.storeId + '" type="tel" ' +
+      'style="width:100%;padding:9px 13px;background:var(--surface2);border:1px solid var(--border);' +
+      'border-radius:8px;color:var(--text);font-size:14px;font-family:var(--font)" ' +
+      'value="' + esc(ownerPhone) + '" placeholder="+52 555 000 0000"/>' +
+  '</div>' +
+
+  // ── Botones de acción ───────────────────────────────────
+  '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+    '<button class="btn primary" onclick="saveStoreCredentials(\'' + s.storeId + '\')">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>' +
+      '<polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>' +
+      'Guardar cambios' +
+    '</button>' +
+    '<button class="btn wa" onclick="shareCredentialsWhatsApp(\'' + s.storeId + '\')">' +
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">' +
+      '<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.940 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>' +
+      '</svg> Reenviar credenciales por WhatsApp' +
+    '</button>' +
+  '</div>' +
+
+'</div>'; // fin dtab-creds
 
   var actionsTab = '<div id="dtab-actions" style="display:none">' +
     '<div style="margin-bottom:20px">' +
@@ -698,9 +767,10 @@ function openStoreDetail(storeId) {
     '<div class="detail-tabs">' +
       '<div class="dtab active" onclick="switchDtab(this,\'dtab-info\')">Informacion</div>' +
       '<div class="dtab" onclick="switchDtab(this,\'dtab-license\')">Licencia & URLs</div>' +
-      '<div class="dtab" onclick="switchDtab(this,\'dtab-sheet\')">Google Sheet</div>' +
-      '<div class="dtab" onclick="switchDtab(this,\'dtab-actions\')">Acciones</div>' +
-    '</div>' +
+     '<div class="dtab" onclick="switchDtab(this,\'dtab-sheet\')">Google Sheet</div>' +
+'<div class="dtab" onclick="switchDtab(this,\'dtab-creds\')">Credenciales</div>' +
+'<div class="dtab" onclick="switchDtab(this,\'dtab-actions\')">Acciones</div>' +
+'</div>' +
     '<div class="detail-body">' +
       '<div id="dtab-info">' +
         '<div class="info-grid">' +
@@ -744,6 +814,7 @@ function openStoreDetail(storeId) {
         '<div class="url-box">' + (s.sheetId||'N/D') + ' <button class="btn sm" onclick="copyText(\'' + s.sheetId + '\')">Copiar</button></div></div>' +
         '<a href="https://docs.google.com/spreadsheets/d/' + s.sheetId + '" target="_blank" class="btn primary">Abrir Google Sheet</a>' +
       '</div>' +
+  credsTab +
       actionsTab +
     '</div>';
 }
@@ -841,7 +912,61 @@ function togglePassVis(inputId) {
   var inp = document.getElementById(inputId);
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
+// ── CREDENCIALES DEL DUEÑO ────────────────────────────────────
+async function saveStoreCredentials(storeId) {
+  var code  = document.getElementById('cred-code-'  + storeId).value.trim();
+  var pass  = document.getElementById('cred-pass-'  + storeId).value;
+  var email = document.getElementById('cred-email-' + storeId).value.trim();
+  var phone = document.getElementById('cred-phone-' + storeId).value.trim();
 
+  if (!email) { toast('El email es requerido', 'error'); return; }
+
+  var configExtra = { ownerPhone: phone, accessCode: code };
+  if (pass) configExtra.ownerPassword = pass;
+
+  var payload = { storeId: storeId, ownerEmail: email, configExtra: configExtra };
+  var res = await api('admin.store.update', payload);
+  if (!res) return;
+
+  // Actualizar cache local
+  var s = ALL_STORES.find(function(x){ return x.storeId === storeId; });
+  if (s) {
+    s.ownerEmail = email;
+    if (!s.config) s.config = {};
+    s.config.ownerPhone  = phone;
+    s.config.accessCode  = code;
+    if (pass) s.config.ownerPassword = pass;
+  }
+
+  // Limpiar campo contraseña tras guardar
+  var passField = document.getElementById('cred-pass-' + storeId);
+  if (passField) passField.value = '';
+
+  toast('Credenciales actualizadas', 'success');
+}
+
+function shareCredentialsWhatsApp(storeId) {
+  var s = ALL_STORES.find(function(x){ return x.storeId === storeId; });
+  if (!s) return;
+
+  // Leer valores actuales de los inputs (pueden haber sido editados)
+  var phone = (document.getElementById('cred-phone-' + storeId).value || '').replace(/\D/g,'');
+  var code  = document.getElementById('cred-code-'  + storeId).value.trim();
+  var email = document.getElementById('cred-email-' + storeId).value.trim();
+
+  if (!phone) { toast('No hay teléfono configurado', 'warn'); return; }
+
+  var ownerUrl = buildOwnerUrl(storeId);
+  var msg =
+    '🔐 *Credenciales de acceso — ' + s.name + '*\n\n' +
+    '🌐 Panel: ' + (ownerUrl || '(configura URL en ajustes)') + '\n\n' +
+    '📧 Email: ' + email + '\n' +
+    '🔑 Código de acceso: ' + (code || '(no configurado)') + '\n\n' +
+    'Guarda estos datos en un lugar seguro.\n' +
+    'Si tienes problemas para acceder, contáctanos.';
+
+  window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+}
 // ── CREATE STORE ──────────────────────────────────────────────
 async function createStore() {
   var btn  = document.getElementById('btn-create-store');
