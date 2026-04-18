@@ -207,7 +207,9 @@ td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border)}
 /* ═══════════════════════════════════════════════════════════════
    CONFIGURACIÓN BASE
 ═══════════════════════════════════════════════════════════════ */
-const BACKEND = (new URLSearchParams(location.search).get('backend')) || localStorage.getItem('ld_backend') || 'https://script.google.com/macros/s/AKfycbwUhTHQkBhLIvF9KgP2bHpVeufIEaPCXZWo9-azz7mYrEEA79BPFCQxE68YQQxE5iw/exec';
+const BACKEND = (new URLSearchParams(location.search).get('backend')) 
+  || localStorage.getItem('ld_backend') ||
+  'https://script.google.com/macros/s/AKfycbwQ_ESx2c-3DL83b_-ujjmvevSBGtwjPZ0e1wEHv3cnLbJOplTJDYUb_UiRVyTYXik/exec';
 let TOKEN     = localStorage.getItem('ld_token')  || '';
 let STORE_ID  = localStorage.getItem('ld_store')  || '';
 let USER_ROLE = localStorage.getItem('ld_role')   || '';
