@@ -729,7 +729,7 @@ async function doVerifyOTP() {
     if (data.ok) {
       clearInterval(OTP_COUNTDOWN); clearInterval(RESEND_COUNTDOWN);
       AUTH_TOKEN = data.token || ('sess-' + Date.now());
-      ADMIN_ROLE = data.adminRole || 'admin1';
+    ADMIN_ROLE = (rawRole === 'admin' || rawRole === 'admin1') ? 'admin1' : 'admin2';
       localStorage.setItem('lk_token', AUTH_TOKEN);
       localStorage.setItem('lk_admin_role', ADMIN_ROLE);
       document.getElementById('login-screen').style.display = 'none';
@@ -770,6 +770,7 @@ window.addEventListener('load', function() {
 
   if (AUTH_TOKEN) {
     document.getElementById('login-screen').style.display = 'none';
+      if (ADMIN_ROLE === 'admin') ADMIN_ROLE = 'admin1';
     applyRoleUI(); refreshData();
     if (ADMIN_ROLE === 'admin1') loadCurrentCredentials();
   }
@@ -793,8 +794,9 @@ window.addEventListener('load', function() {
    y añadiendo admin1-visible (que tiene !important flex)
    o admin1-visible-block para botones block.
 ══════════════════════════════════════════════════════ */
-function applyRoleUI() {
-  var isAdmin1 = (ADMIN_ROLE === 'admin1');
+  function applyRoleUI() {
+  // FIX: normalizar — GAS puede devolver 'admin' o 'admin1'
+  var isAdmin1 = (ADMIN_ROLE === 'admin1' || ADMIN_ROLE === 'admin');
 
   document.querySelectorAll('.admin1-only').forEach(function(el) {
     if (isAdmin1) {
