@@ -729,7 +729,8 @@ async function doVerifyOTP() {
     if (data.ok) {
       clearInterval(OTP_COUNTDOWN); clearInterval(RESEND_COUNTDOWN);
       AUTH_TOKEN = data.token || ('sess-' + Date.now());
-    ADMIN_ROLE = (rawRole === 'admin' || rawRole === 'admin1') ? 'admin1' : 'admin2';
+      var rawRole = data.adminRole || data.role || '';
+ADMIN_ROLE = (rawRole === 'admin' || rawRole === 'admin1') ? 'admin1' : 'admin2';
       localStorage.setItem('lk_token', AUTH_TOKEN);
       localStorage.setItem('lk_admin_role', ADMIN_ROLE);
       document.getElementById('login-screen').style.display = 'none';
