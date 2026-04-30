@@ -989,7 +989,17 @@ function openStoreDetail(storeId) {
     + '<div style="display:flex;gap:8px">'
     + '<button class="btn primary sm" data-id="'+s.storeId+'" onclick="saveLKCode(this.dataset.id)">Guardar</button>'
     + '<button class="btn wa sm" data-id="'+s.storeId+'" onclick="sendLKWhatsApp(this.dataset.id)">Enviar WA</button>'
-    + '</div></div>';
+    + '</div></div>'
+    //* ayuda deepseek*//
+    // ── NUEVO BLOQUE: COBROS A CRÉDITO ──
+    + '<div style="margin-bottom:20px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">'
+    + '<div><div class="info-label" style="margin-bottom:2px">💰 Cobros a Crédito</div>'
+    + '<div style="font-size:11px;color:var(--muted)">Habilitar sistema de pagos a crédito</div></div>'
+    + '<button class="btn ' + ((cfg.allowCobros === true || cfg.allowCobros === 'true') ? 'primary' : '') + '" id="btn-cobros-' + s.storeId + '" data-id="' + s.storeId + '" onclick="toggleAllowCobros(this.dataset.id)">'
+    + ((cfg.allowCobros === true || cfg.allowCobros === 'true') ? '✓ Activado' : '➕ Activar Cobros')
+    //*termina ayuda deepseek*//
+    + '</button></div></div>';
 
   if (isAdmin1) {
     actionsTab += '<hr class="divider">';
@@ -1330,6 +1340,46 @@ document.querySelectorAll('.overlay').forEach(function(o){o.addEventListener('cl
 var shakeStyle = document.createElement('style');
 shakeStyle.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}';
 document.head.appendChild(shakeStyle);
+//*ayuda deepseek*//
+
+  // ── TOGGLE ALLOW COBROS ──
+async function toggleAllowCobros(storeId) {
+  var s = ALL_STORES.find(function(x) { return x.storeId === storeId; });
+  if (!s) return;
+  var cfg = s.config || {};
+  var current = cfg.allowCobros === true || cfg.allowCobros === 'true';
+  var nuevo = !current;
+  
+  var confirmMsg = nuevo 
+    ? '¿Activar módulo de Cobros a Crédito para esta tienda?\n\nPodrás gestionar pagos a crédito desde el panel de pedidos.'
+    : '¿Desactivar módulo de Cobros a Crédito?\n\nLos pedidos a crédito existentes seguirán visibles.';
+  
+  if (!confirm(confirmMsg)) return;
+  
+  var res = await api('admin.store.update', {
+    storeId: storeId,
+    configExtra: { allowCobros: nuevo }
+  });
+  
+  if (!res) return;
+  
+  if (!s.config) s.config = {};
+  s.config.allowCobros = nuevo;
+  
+  var btn = document.getElementById('btn-cobros-' + storeId);
+  if (btn) {
+    if (nuevo) {
+      btn.classList.add('primary');
+      btn.textContent = '✓ Activado';
+    } else {
+      btn.classList.remove('primary');
+      btn.textContent = '➕ Activar Cobros';
+    }
+  }
+  
+  toast(nuevo ? '✅ Cobros a crédito activados' : '❌ Cobros desactivados', 'success');
+}
+  //*termina ayuda deepseek*//
 </script>
 </body>
 </html>
