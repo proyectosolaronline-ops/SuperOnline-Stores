@@ -969,9 +969,6 @@ function openStoreDetail(storeId) {
     + '<div style="display:flex;gap:10px;flex-wrap:wrap">'
     + '<button class="btn primary" data-id="'+s.storeId+'" onclick="saveStoreCredentials(this.dataset.id)">💾 Guardar cambios</button>'
     + '<button class="btn wa" data-id="'+s.storeId+'" onclick="shareCredentialsWhatsApp(this.dataset.id)">WhatsApp credenciales</button>'
-   +'<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px">'
-+'<div class="info-label" style="margin-bottom:8px">Demo en vivo</div>'
-+<button onclick="(function(){var u='https://proyectosolaronline-ops.github.io/Cat-logo-tienda-online/transmisor.html?url='+encodeURIComponent(window.location.href);window.open(u,'_blank');})()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#a3e635;color:#14532d;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 12px rgba(163,230,53,.35);white-space:nowrap;"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M2 12a10 10 0 0020 0M6 12a6 6 0 0012 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>Demo en vivo</button>+'</div></div>'
     + '</div></div>';
 
   var actionsTab = '<div id="dtab-actions" style="display:none">'
