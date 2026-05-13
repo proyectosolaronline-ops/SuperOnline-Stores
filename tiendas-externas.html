@@ -90,11 +90,7 @@ tr:last-child td{border-bottom:none}
 .gps-btn svg{flex-shrink:0}
 .coords-display{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface2);padding:6px 10px;border-radius:8px;display:none}
 .coords-display.show{display:block}
-/* Estilos extra para el control de pantalla completa */
-.leaflet-control-fullscreen-toggle {
-    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTE1IDNIMjFWOU05IDIxSDNMMTUuNU0yMSA0di02aC02TTMgMjB2LTZoNiIvPjwvc3ZnPg==');
-}
-#form-map:-webkit-full-screen { width: 100% !important; height: 100% !important; }
+
 /* FOTO PREVIEW */
 .foto-preview-wrap{display:flex;align-items:center;gap:12px}
 .foto-preview{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);display:none}
@@ -454,62 +450,14 @@ function cerrarForm() {
 }
 
 /* ── MAPA ── */
-/* ── MAPA MEJORADO (SATÉLITE + FULLSCREEN) ── */
 function iniciarFormMap() {
-  if (formMap) return[cite: 145];
-  
-  var lat = parseFloat(document.getElementById('f-lat').value) || 20.5888[cite: 145];
-  var lng = parseFloat(document.getElementById('f-lng').value) || -100.3899[cite: 145];
-
-  // Definir Capas
-  var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-    maxZoom: 19, 
-    attribution: '© OSM' 
-  });
-  
-  var satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
-  });
-
-  // Inicializar Mapa
-  formMap = L.map('form-map', { 
-    zoomControl: true,
-    layers: [osm] // Capa por defecto
-  }).setView([lat, lng], 13)[cite: 146];
-
-  // Añadir Selector de Capas
-  var baseMaps = {
-    "Calle": osm,
-    "Satélite": satelite
-  };
-  L.control.layers(baseMaps, null, { position: 'topright' }).addTo(formMap);
-
-  // Botón Pantalla Completa Personalizado
-  var fsControl = L.Control.extend({
-    options: { position: 'topleft' },
-    onAdd: function() {
-      var btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-      btn.innerHTML = '<button title="Pantalla Completa" style="background:#fff; border:none; width:30px; height:30px; cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center; border-radius:2px;">⛶</button>';
-      btn.onclick = function() {
-        var mapDiv = document.getElementById('form-map');
-        if (!document.fullscreenElement) {
-          mapDiv.requestFullscreen().catch(err => {
-            toast('Error al ampliar mapa', 'error');
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      };
-      return btn;
-    }
-  });
-  formMap.addControl(new fsControl());
-
-  if (document.getElementById('f-lat').value) setMapPin(lat, lng)[cite: 147];
-  
-  formMap.on('click', function(e) { 
-    setMapPin(e.latlng.lat, e.latlng.lng)[cite: 147]; 
-  });
+  if (formMap) return;
+  var lat = parseFloat(document.getElementById('f-lat').value) || 20.5888;
+  var lng = parseFloat(document.getElementById('f-lng').value) || -100.3899;
+  formMap = L.map('form-map', { zoomControl: true }).setView([lat, lng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(formMap);
+  if (document.getElementById('f-lat').value) setMapPin(lat, lng);
+  formMap.on('click', function(e) { setMapPin(e.latlng.lat, e.latlng.lng); });
 }
 
 function setMapPin(lat, lng) {
