@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Tiendas Externas — EasyLink Admin</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#f4f4f0;--surface:#fff;--surface2:#f9f9f6;--border:#e8e8e2;
+  --accent:#6366f1;--accent2:#4f46e5;--text:#1a1a1a;--muted:#888;
+  --danger:#ef4444;--warn:#f59e0b;--success:#16a34a;
+  --font-d:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{display:none;position:fixed;inset:0;background:#1a1a1a;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:20px;padding:24px}
+.login-wrap.show{display:flex}
+.login-box{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:360px}
+.login-logo{font-family:var(--font-d);font-size:22px;font-weight:800;color:var(--accent);margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.login-field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.login-field input{padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font-b)}
+.login-field input:focus{outline:none;border-color:var(--accent)}
+.login-btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-b)}
+.login-err{font-size:12px;color:var(--danger);text-align:center;display:none}
+
+/* APP */
+.app{display:none;flex-direction:column;min-height:100vh}
+.app.visible{display:flex}
+.topbar{background:var(--surface);border-bottom:1.5px solid var(--border);padding:0 16px;height:54px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:40}
+.topbar-title{font-family:var(--font-d);font-size:15px;font-weight:800;flex:1}
+.topbar-badge{font-size:10px;background:var(--accent);color:#fff;padding:2px 8px;border-radius:99px;font-weight:700}
+.content{padding:16px;flex:1}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.stat-val{font-family:var(--font-d);font-size:22px;font-weight:800}
+.stat-val.green{color:var(--success)}
+.stat-val.orange{color:var(--warn)}
+
+/* BOTONES */
+.btn{padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-b);display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn.success{background:var(--success);color:#fff;border-color:var(--success)}
+.btn.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
+.btn.sm{padding:7px 12px;font-size:12px;border-radius:8px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.full{width:100%}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* TABLA */
+.tbl-wrap{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.tbl-header{padding:12px 16px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+.tbl-title{font-family:var(--font-d);font-size:14px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1.5px solid var(--border);background:var(--surface2)}
+td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.clickable{cursor:pointer}
+.clickable:hover td{background:var(--surface2)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.badge.activo{background:#dcfce7;color:#166534}
+.badge.suspendido{background:#fee2e2;color:#991b1b}
+
+/* FOTO MINI */
+.foto-mini{width:36px;height:36px;border-radius:8px;object-fit:cover;background:var(--surface2);flex-shrink:0}
+.foto-placeholder{width:36px;height:36px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:95vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom)}
+.modal-hdr{padding:16px 20px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-title{font-family:var(--font-d);font-size:16px;font-weight:800}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{padding:14px 20px;border-top:1.5px solid var(--border);display:flex;gap:8px}
+.modal-foot .btn{flex:1}
+
+/* FORM */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.field input,.field select,.field textarea{padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font-b);color:var(--text);background:var(--surface)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:70px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-hint{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* MAPA */
+#form-map{height:220px;border-radius:10px;border:1.5px solid var(--border);overflow:hidden;margin-top:4px}
+.gps-btn{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-b);color:var(--text);width:100%;transition:all .15s;margin-bottom:8px}
+.gps-btn:hover{border-color:var(--accent);color:var(--accent)}
+.gps-btn svg{flex-shrink:0}
+.coords-display{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--surface2);padding:6px 10px;border-radius:8px;display:none}
+.coords-display.show{display:block}
+
+/* FOTO PREVIEW */
+.foto-preview-wrap{display:flex;align-items:center;gap:12px}
+.foto-preview{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1.5px solid var(--border);display:none}
+.foto-preview.show{display:block}
+
+/* SEARCH */
+.search-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--font-b);background:var(--surface);color:var(--text);margin-bottom:14px}
+.search-input:focus{outline:none;border-color:var(--accent)}
+
+/* SPINNER / EMPTY */
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+.spinner-big{width:32px;height:32px;border-width:3px;margin:20px auto;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);border-radius:10px;padding:11px 18px;font-size:13px;font-weight:600;z-index:9999;display:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+#toast.success{background:var(--success);color:#fff}
+#toast.error{background:var(--danger);color:#fff}
+#toast.warn{background:var(--warn);color:#fff}
+
+@media(min-width:768px){
+  .overlay{align-items:center}
+  .modal{border-radius:14px;max-width:560px;width:100%}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  #form-map{height:280px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">⚡ EasyLink</div>
+    <div class="login-sub">Admin — Tiendas Externas</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input id="l-email" type="email" placeholder="admin@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="login-err" id="l-err"></div>
+    <button class="login-btn" id="l-btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="topbar-title">Tiendas Externas</div>
+    <span class="topbar-badge" id="badge-total">0</span>
+    <button class="btn sm" onclick="loadTiendas()" title="Actualizar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+    </button>
+    <button class="btn primary sm" onclick="abrirFormNueva()">+ Nueva</button>
+    <button class="btn ghost sm" onclick="cerrarSesion()">Salir</button>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total</div>
+        <div class="stat-val" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Activas</div>
+        <div class="stat-val green" id="stat-activas">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Suspendidas</div>
+        <div class="stat-val orange" id="stat-suspendidas">—</div>
+      </div>
+    </div>
+
+    <input class="search-input" id="search" placeholder="Buscar por nombre, localidad o estado..." oninput="renderTabla()">
+
+    <div class="tbl-wrap">
+      <div class="tbl-header">
+        <div class="tbl-title">Directorio externo</div>
+      </div>
+      <div id="tabla-wrap"><div class="empty"><div class="spinner spinner-big"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FORMULARIO (nueva / editar) -->
+<div class="overlay" id="modal-form">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="form-title">Nueva tienda externa</div>
+      <button class="btn ghost sm" onclick="cerrarForm()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="field-row">
+        <div class="field">
+          <label>Nombre cliente *</label>
+          <input id="f-nombre-cliente" placeholder="Juan Pérez" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Teléfono *</label>
+          <input id="f-telefono" type="tel" placeholder="4421234567" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nombre del negocio *</label>
+        <input id="f-nombre-tienda" placeholder="Ej: Tacos El Güero" autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Estado</label>
+          <input id="f-estado" placeholder="Querétaro" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Localidad / Ciudad</label>
+          <input id="f-localidad" placeholder="San Juan del Río" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Colonia</label>
+        <input id="f-colonia" placeholder="Col. Centro" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Link del negocio (opcional)</label>
+        <input id="f-link" type="url" placeholder="https://instagram.com/minegocio" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label>Foto del negocio o producto (URL)</label>
+        <div class="foto-preview-wrap">
+          <input id="f-foto" placeholder="https://..." oninput="previewFoto()" autocomplete="off" style="flex:1">
+          <img id="f-foto-preview" class="foto-preview" src="" alt="preview">
+        </div>
+        <div class="field-hint">Pega una URL de imagen (Drive, Instagram, etc.)</div>
+      </div>
+
+      <div class="field">
+        <label>Ubicación en el mapa *</label>
+        <button class="gps-btn" onclick="usarGPS()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          Usar mi ubicación actual (GPS)
+        </button>
+        <div id="map-coords" class="coords-display"></div>
+        <div id="form-map"></div>
+        <div class="field-hint">También puedes tocar el mapa para ajustar el pin</div>
+      </div>
+
+      <input type="hidden" id="f-lat">
+      <input type="hidden" id="f-lng">
+      <input type="hidden" id="f-store-id">
+
+    </div>
+    <div class="modal-foot">
+      <button class="btn full" onclick="cerrarForm()">Cancelar</button>
+      <button class="btn primary full" id="btn-guardar" onclick="guardarTienda()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="overlay" id="modal-detalle">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="det-nombre">Detalle</div>
+      <button class="btn ghost sm" onclick="cerrarDetalle()">✕</button>
+    </div>
+    <div class="modal-body" id="det-body"></div>
+    <div class="modal-foot" id="det-foot"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const BACKEND = localStorage.getItem('el_backend') || 'https://script.google.com/macros/s/AKfycbwQ_ESx2c-3DL83b_-ujjmvevSBGtwjPZ0e1wEHv3cnLbJOplTJDYUb_UiRVyTYXik/exec';
+let TOKEN = localStorage.getItem('el_admin_token') || '';
+let ALL_TIENDAS = [];
+let formMap = null, formMarker = null;
+let EDITING_ID = null;
+
+/* ── AUTH ── */
+window.addEventListener('load', function() {
+  if (TOKEN) { iniciarApp(); }
+  else { document.getElementById('login-wrap').classList.add('show'); }
+});
+
+async function doLogin() {
+  var email = document.getElementById('l-email').value.trim();
+  var pass  = document.getElementById('l-pass').value;
+  var errEl = document.getElementById('l-err');
+  var btn   = document.getElementById('l-btn');
+  errEl.style.display = 'none';
+  if (!email || !pass) { errEl.textContent = 'Completa los campos'; errEl.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  try {
+    var res = await fetch(BACKEND, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action: 'admin.login', email: email, password: pass })
+    });
+    var data = await res.json();
+    if (!data.ok) throw new Error(data.error || 'Credenciales inválidas');
+    TOKEN = data.token;
+    localStorage.setItem('el_admin_token', TOKEN);
+    document.getElementById('login-wrap').classList.remove('show');
+    iniciarApp();
+  } catch(e) {
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Entrar';
+}
+
+function cerrarSesion() {
+  localStorage.removeItem('el_admin_token');
+  TOKEN = '';
+  location.reload();
+}
+
+function iniciarApp() {
+  document.getElementById('app').classList.add('visible');
+  loadTiendas();
+}
+
+/* ── API ── */
+async function api(action, data) {
+  data = data || {};
+  try {
+    var res = await fetch(BACKEND, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(Object.assign({ action: action, token: TOKEN }, data))
+    });
+    var json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Error desconocido');
+    return json;
+  } catch(e) { toast(e.message, 'error'); return null; }
+}
+
+/* ── CARGAR TIENDAS ── */
+async function loadTiendas() {
+  document.getElementById('tabla-wrap').innerHTML = '<div class="empty"><div class="spinner spinner-big"></div></div>';
+  var res = await api('external.stores.list');
+  if (!res) return;
+  ALL_TIENDAS = res.stores || [];
+  actualizarStats();
+  renderTabla();
+}
+
+function actualizarStats() {
+  var activas     = ALL_TIENDAS.filter(function(t){ return t.status === 'activo'; }).length;
+  var suspendidas = ALL_TIENDAS.filter(function(t){ return t.status === 'suspendido'; }).length;
+  document.getElementById('stat-total').textContent      = ALL_TIENDAS.length;
+  document.getElementById('stat-activas').textContent    = activas;
+  document.getElementById('stat-suspendidas').textContent = suspendidas;
+  document.getElementById('badge-total').textContent     = ALL_TIENDAS.length;
+}
+
+function renderTabla() {
+  var q = (document.getElementById('search').value || '').toLowerCase();
+  var lista = q ? ALL_TIENDAS.filter(function(t){
+    return (t.nombre_tienda||'').toLowerCase().includes(q)
+        || (t.nombre_cliente||'').toLowerCase().includes(q)
+        || (t.localidad||'').toLowerCase().includes(q)
+        || (t.estado||'').toLowerCase().includes(q);
+  }) : ALL_TIENDAS;
+
+  if (!lista.length) {
+    document.getElementById('tabla-wrap').innerHTML = '<div class="empty">Sin tiendas registradas</div>';
+    return;
+  }
+
+  document.getElementById('tabla-wrap').innerHTML =
+    '<table><thead><tr>' +
+      '<th>Negocio</th>' +
+      '<th>Ubicación</th>' +
+      '<th>Estado</th>' +
+      '<th>Acciones</th>' +
+    '</tr></thead><tbody>' +
+    lista.map(function(t) {
+      var foto = t.foto
+        ? '<img class="foto-mini" src="'+esc(fixImg(t.foto))+'" onerror="this.style.display=\'none\'">'
+        : '<div class="foto-placeholder">🏪</div>';
+      var loc = [t.localidad, t.estado].filter(Boolean).join(', ') || '—';
+      var badgeCls = t.status === 'activo' ? 'activo' : 'suspendido';
+      var badgeTxt = t.status === 'activo' ? 'Activo' : 'Suspendido';
+      return '<tr class="clickable" data-id="'+esc(t.storeId)+'">' +
+        '<td><div style="display:flex;align-items:center;gap:10px">' + foto +
+          '<div><div style="font-weight:600">'+esc(t.nombre_tienda||'—')+'</div>' +
+          '<div style="font-size:11px;color:var(--muted)">'+esc(t.nombre_cliente||'')+'</div></div></div></td>' +
+        '<td style="font-size:12px;color:var(--muted)">'+esc(loc)+'</td>' +
+        '<td><span class="badge '+badgeCls+'">'+badgeTxt+'</span></td>' +
+        '<td><div style="display:flex;gap:6px">' +
+          '<button class="btn sm" onclick="event.stopPropagation();editarTienda(\''+esc(t.storeId)+'\')">✏️</button>' +
+          (t.status === 'activo'
+            ? '<button class="btn sm warn" onclick="event.stopPropagation();cambiarEstado(\''+esc(t.storeId)+'\',\'suspendido\')">⏸</button>'
+            : '<button class="btn sm success" onclick="event.stopPropagation();cambiarEstado(\''+esc(t.storeId)+'\',\'activo\')">▶️</button>'
+          ) +
+        '</div></td>' +
+      '</tr>';
+    }).join('') + '</tbody></table>';
+
+  document.querySelectorAll('#tabla-wrap tr.clickable').forEach(function(row){
+    row.addEventListener('click', function(){ abrirDetalle(this.getAttribute('data-id')); });
+  });
+}
+
+/* ── DETALLE ── */
+function abrirDetalle(id) {
+  var t = ALL_TIENDAS.find(function(x){ return x.storeId === id; });
+  if (!t) return;
+  document.getElementById('det-nombre').textContent = t.nombre_tienda || 'Tienda';
+  var foto = t.foto
+    ? '<img src="'+esc(fixImg(t.foto))+'" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-bottom:4px">'
+    : '';
+  var badgeCls = t.status === 'activo' ? 'activo' : 'suspendido';
+  var badgeTxt = t.status === 'activo' ? '● Activo' : '● Suspendido';
+  document.getElementById('det-body').innerHTML =
+    foto +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+      di('Cliente',    t.nombre_cliente || '—') +
+      di('Teléfono',   t.telefono       || '—') +
+      di('Estado MX',  t.estado         || '—') +
+      di('Localidad',  t.localidad      || '—') +
+      di('Colonia',    t.colonia        || '—') +
+      di('Coordenadas', t.locationLat ? t.locationLat+', '+t.locationLng : '—') +
+    '</div>' +
+    (t.link_negocio ? '<a href="'+esc(t.link_negocio)+'" target="_blank" style="font-size:13px;color:var(--accent)">🔗 '+esc(t.link_negocio)+'</a>' : '') +
+    '<div style="margin-top:4px"><span class="badge '+badgeCls+'">'+badgeTxt+'</span></div>';
+
+  document.getElementById('det-foot').innerHTML =
+    '<button class="btn full" onclick="cerrarDetalle()">Cerrar</button>' +
+    '<button class="btn primary full" onclick="cerrarDetalle();editarTienda(\''+esc(id)+'\')">✏️ Editar</button>';
+
+  document.getElementById('modal-detalle').classList.add('open');
+}
+function cerrarDetalle() { document.getElementById('modal-detalle').classList.remove('open'); }
+
+/* ── FORMULARIO NUEVA / EDITAR ── */
+function abrirFormNueva() {
+  EDITING_ID = null;
+  document.getElementById('form-title').textContent = 'Nueva tienda externa';
+  document.getElementById('btn-guardar').textContent = 'Guardar';
+  limpiarForm();
+  document.getElementById('modal-form').classList.add('open');
+  setTimeout(iniciarFormMap, 300);
+}
+
+function editarTienda(id) {
+  var t = ALL_TIENDAS.find(function(x){ return x.storeId === id; });
+  if (!t) return;
+  EDITING_ID = id;
+  document.getElementById('form-title').textContent = 'Editar tienda';
+  document.getElementById('btn-guardar').textContent = 'Guardar cambios';
+  document.getElementById('f-nombre-cliente').value = t.nombre_cliente || '';
+  document.getElementById('f-nombre-tienda').value  = t.nombre_tienda  || '';
+  document.getElementById('f-telefono').value       = t.telefono       || '';
+  document.getElementById('f-estado').value         = t.estado         || '';
+  document.getElementById('f-localidad').value      = t.localidad      || '';
+  document.getElementById('f-colonia').value        = t.colonia        || '';
+  document.getElementById('f-link').value           = t.link_negocio   || '';
+  document.getElementById('f-foto').value           = t.foto           || '';
+  document.getElementById('f-lat').value            = t.locationLat    || '';
+  document.getElementById('f-lng').value            = t.locationLng    || '';
+  document.getElementById('f-store-id').value       = id;
+  previewFoto();
+  document.getElementById('modal-form').classList.add('open');
+  setTimeout(function(){
+    iniciarFormMap();
+    var lat = parseFloat(t.locationLat), lng = parseFloat(t.locationLng);
+    if (!isNaN(lat) && !isNaN(lng)) setMapPin(lat, lng);
+  }, 300);
+}
+
+function limpiarForm() {
+  ['f-nombre-cliente','f-nombre-tienda','f-telefono','f-estado','f-localidad','f-colonia','f-link','f-foto','f-lat','f-lng','f-store-id'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  var prev = document.getElementById('f-foto-preview');
+  prev.classList.remove('show'); prev.src = '';
+  document.getElementById('map-coords').classList.remove('show');
+}
+
+function cerrarForm() {
+  document.getElementById('modal-form').classList.remove('open');
+  if (formMap) { formMap.remove(); formMap = null; formMarker = null; }
+}
+
+/* ── MAPA EN FORMULARIO ── */
+function iniciarFormMap() {
+  if (formMap) return;
+  var lat = parseFloat(document.getElementById('f-lat').value) || 20.5888;
+  var lng = parseFloat(document.getElementById('f-lng').value) || -100.3899;
+  formMap = L.map('form-map', { zoomControl: true }).setView([lat, lng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(formMap);
+
+  if (document.getElementById('f-lat').value) {
+    setMapPin(lat, lng);
+  }
+
+  formMap.on('click', function(e) {
+    setMapPin(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+function setMapPin(lat, lng) {
+  if (formMarker) formMarker.remove();
+  formMarker = L.marker([lat, lng], { draggable: true }).addTo(formMap);
+  formMarker.on('dragend', function(e) {
+    var pos = e.target.getLatLng();
+    guardarCoords(pos.lat, pos.lng);
+  });
+  formMap.setView([lat, lng], 15);
+  guardarCoords(lat, lng);
+}
+
+function guardarCoords(lat, lng) {
+  var latR = lat.toFixed(6), lngR = lng.toFixed(6);
+  document.getElementById('f-lat').value = latR;
+  document.getElementById('f-lng').value = lngR;
+  var coordEl = document.getElementById('map-coords');
+  coordEl.textContent = '📍 ' + latR + ', ' + lngR;
+  coordEl.classList.add('show');
+}
+
+function usarGPS() {
+  if (!navigator.geolocation) { toast('GPS no disponible', 'warn'); return; }
+  toast('Obteniendo ubicación...', 'warn');
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var lat = pos.coords.latitude, lng = pos.coords.longitude;
+      if (!formMap) iniciarFormMap();
+      setMapPin(lat, lng);
+      toast('Ubicación obtenida ✅', 'success');
+    },
+    function() { toast('No se pudo obtener la ubicación', 'error'); },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+/* ── PREVIEW FOTO ── */
+function previewFoto() {
+  var url = document.getElementById('f-foto').value.trim();
+  var prev = document.getElementById('f-foto-preview');
+  if (url) { prev.src = fixImg(url); prev.classList.add('show'); }
+  else { prev.classList.remove('show'); prev.src = ''; }
+}
+
+/* ── GUARDAR TIENDA ── */
+async function guardarTienda() {
+  var nombreCliente = document.getElementById('f-nombre-cliente').value.trim();
+  var nombreTienda  = document.getElementById('f-nombre-tienda').value.trim();
+  var telefono      = document.getElementById('f-telefono').value.trim();
+  var estado        = document.getElementById('f-estado').value.trim();
+  var localidad     = document.getElementById('f-localidad').value.trim();
+  var colonia       = document.getElementById('f-colonia').value.trim();
+  var link          = document.getElementById('f-link').value.trim();
+  var foto          = document.getElementById('f-foto').value.trim();
+  var lat           = document.getElementById('f-lat').value;
+  var lng           = document.getElementById('f-lng').value;
+
+  if (!nombreCliente) { toast('El nombre del cliente es requerido', 'error'); return; }
+  if (!nombreTienda)  { toast('El nombre del negocio es requerido', 'error'); return; }
+  if (!telefono)      { toast('El teléfono es requerido', 'error'); return; }
+  if (!lat || !lng)   { toast('Selecciona la ubicación en el mapa', 'error'); return; }
+
+  var btn = document.getElementById('btn-guardar');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+
+  var action = EDITING_ID ? 'external.store.update' : 'external.store.create';
+  var payload = {
+    storeId:       EDITING_ID || '',
+    nombre_cliente: nombreCliente,
+    nombre_tienda:  nombreTienda,
+    telefono:       telefono,
+    estado:         estado,
+    localidad:      localidad,
+    colonia:        colonia,
+    link_negocio:   link,
+    foto:           foto,
+    locationLat:    lat,
+    locationLng:    lng,
+  };
+
+  var res = await api(action, payload);
+  btn.disabled = false; btn.textContent = EDITING_ID ? 'Guardar cambios' : 'Guardar';
+  if (!res) return;
+
+  if (EDITING_ID) {
+    var idx = ALL_TIENDAS.findIndex(function(x){ return x.storeId === EDITING_ID; });
+    if (idx >= 0) ALL_TIENDAS[idx] = Object.assign(ALL_TIENDAS[idx], payload);
+    toast('Tienda actualizada ✅', 'success');
+  } else {
+    ALL_TIENDAS.unshift(Object.assign({ storeId: res.storeId, status: 'activo', inDirectory: true }, payload));
+    toast('Tienda registrada ✅', 'success');
+  }
+
+  actualizarStats();
+  renderTabla();
+  cerrarForm();
+}
+
+/* ── CAMBIAR ESTADO ── */
+async function cambiarEstado(storeId, nuevoEstado) {
+  var res = await api('external.store.status', { storeId: storeId, status: nuevoEstado });
+  if (!res) return;
+  var t = ALL_TIENDAS.find(function(x){ return x.storeId === storeId; });
+  if (t) t.status = nuevoEstado;
+  actualizarStats();
+  renderTabla();
+  toast('Estado actualizado: ' + nuevoEstado, 'success');
+}
+
+/* ── UTILS ── */
+function di(label, val) {
+  return '<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px">'+label+'</div><div style="font-weight:600;font-size:13px">'+esc(String(val))+'</div></div>';
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fixImg(u) {
+  if (!u) return '';
+  var m = u.match(/[?&]id=([\w-]+)/); if (m) return 'https://lh3.googleusercontent.com/d/'+m[1];
+  var m2 = u.match(/\/d\/([\w-]+)/);  if (m2) return 'https://lh3.googleusercontent.com/d/'+m2[1];
+  return u;
+}
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = type || 'success'; el.style.display = 'block';
+  clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display = 'none'; }, 3500);
+}
+
+document.querySelectorAll('.overlay').forEach(function(o){
+  o.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
+});
+document.getElementById('l-pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>
