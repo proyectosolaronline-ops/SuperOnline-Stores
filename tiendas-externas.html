@@ -268,9 +268,8 @@ tr:last-child td{border-bottom:none}
    CONFIG — cambia solo estas dos líneas
    ═══════════════════════════════════════════ */
 const BACKEND = 'https://script.google.com/macros/s/AKfycbwQ_ESx2c-3DL83b_-ujjmvevSBGtwjPZ0e1wEHv3cnLbJOplTJDYUb_UiRVyTYXik/exec';
-// El token se lee de localStorage (lo guarda el panel admin cuando haces login allá)
-// Si quieres hardcodearlo: const TOKEN = 'tu-token-aqui';
-let TOKEN = localStorage.getItem('el_admin_token') || '';
+// Token compartido con el panel maestro (lk_token)
+let TOKEN = localStorage.getItem('lk_token') || '';
 
 let ALL_TIENDAS = [];
 let formMap = null, formMarker = null;
