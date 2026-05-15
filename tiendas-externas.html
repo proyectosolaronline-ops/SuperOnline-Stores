@@ -216,6 +216,10 @@ tr:last-child td{border-bottom:none}
         <label>Link del negocio (opcional)</label>
         <input id="f-link" type="url" placeholder="https://instagram.com/minegocio" autocomplete="off">
       </div>
+      <div class="field">
+        <label>Tipo de negocio / Qué vende</label>
+        <input id="f-tipo-negocio" placeholder="Ej: Tacos, Ropa, Electrónica..." autocomplete="off">
+      </div>
 
       <div class="field">
         <label>Foto del negocio o producto</label>
@@ -389,7 +393,12 @@ function renderTabla() {
       return '<tr class="clickable" data-id="'+esc(t.storeId)+'">' +
         '<td><div style="display:flex;align-items:center;gap:10px">' + foto +
           '<div><div style="font-weight:600">'+esc(t.nombre_tienda||'—')+'</div>' +
-          '<div style="font-size:11px;color:var(--muted)">'+esc(t.nombre_cliente||'')+'</div></div></div></td>' +
+
+        
+      '<div style="font-size:11px;color:var(--muted)">'+esc(t.nombre_cliente||'')+'</div>' +
+          (t.tipo_negocio?'<div style="font-size:10px;background:#f0f9ff;color:#0369a1;padding:1px 6px;border-radius:99px;display:inline-block;margin-top:2px">'+esc(t.tipo_negocio)+'</div>':'') +
+          '</div></div></td>' +
+        
         '<td style="font-size:12px;color:var(--muted)">'+esc(loc)+'</td>' +
         '<td><span class="badge '+badgeCls+'">'+badgeTxt+'</span></td>' +
         '<td><div style="display:flex;gap:6px">' +
@@ -425,6 +434,7 @@ function abrirDetalle(id) {
       di('Estado MX',   t.estado         || '—') +
       di('Localidad',   t.localidad      || '—') +
       di('Colonia',     t.colonia        || '—') +
+    di('Tipo negocio', t.tipo_negocio  || '—') +
       di('Coordenadas', t.locationLat ? t.locationLat+', '+t.locationLng : '—') +
     '</div>' +
     (t.link_negocio ? '<a href="'+esc(t.link_negocio)+'" target="_blank" style="font-size:13px;color:var(--accent)">🔗 '+esc(t.link_negocio)+'</a>' : '') +
@@ -461,6 +471,7 @@ function editarTienda(id) {
   document.getElementById('f-localidad').value      = t.localidad      || '';
   document.getElementById('f-colonia').value        = t.colonia        || '';
   document.getElementById('f-link').value           = t.link_negocio   || '';
+  document.getElementById('f-tipo-negocio').value   = t.tipo_negocio   || '';
   document.getElementById('f-foto-base64').value    = '';
 
   // FIX 2: si la foto guardada es base64, no pasar por fixImg ni meter en f-foto
@@ -488,8 +499,8 @@ function editarTienda(id) {
 
 function limpiarForm() {
   ['f-nombre-cliente','f-nombre-tienda','f-telefono','f-estado','f-localidad',
-   'f-colonia','f-link','f-foto','f-foto-base64','f-lat','f-lng','f-store-id'].forEach(function(id){
-    document.getElementById(id).value = '';
+'f-colonia','f-link','f-tipo-negocio','f-foto','f-foto-base64','f-lat','f-lng','f-store-id'].forEach(function(id){  
+  document.getElementById(id).value = '';
   });
   document.getElementById('foto-preview-box').style.display = 'none';
   document.getElementById('f-foto-preview').src = '';
@@ -699,6 +710,7 @@ async function guardarTienda() {
   var localidad     = document.getElementById('f-localidad').value.trim();
   var colonia       = document.getElementById('f-colonia').value.trim();
   var link          = document.getElementById('f-link').value.trim();
+  var tipoNegocio   = document.getElementById('f-tipo-negocio').value.trim();
   var foto          = document.getElementById('f-foto-base64').value
                    || document.getElementById('f-foto').value.trim();
   var lat           = document.getElementById('f-lat').value;
@@ -722,6 +734,7 @@ async function guardarTienda() {
     localidad:      localidad,
     colonia:        colonia,
     link_negocio:   link,
+    tipo_negocio:   tipoNegocio,
     foto:           foto,
     locationLat:    lat,
     locationLng:    lng,
