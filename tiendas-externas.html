@@ -777,18 +777,12 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
 // FIX 1: fixImg protege strings base64
 function fixImg(u) {
-  if (!u) return '';
-  if (u.startsWith('data:')) return u; // base64, no tocar
-  var m = u.match(/[?&]id=([\w-]+)/); if (m) return 'https://lh3.googleusercontent.com/d/'+m[1];
-  var m2 = u.match(/\/d\/([\w-]+)/);  if (m2) return 'https://lh3.googleusercontent.com/d/'+m2[1];
-  return u;
-}
 
 function toast(msg, type) {
   var el = document.getElementById('toast');
   el.textContent = msg; el.className = type || 'success'; el.style.display = 'block';
   clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display = 'none'; }, 3500);
-}
+} *//
 
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
