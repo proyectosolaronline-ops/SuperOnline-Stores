@@ -133,7 +133,10 @@ tr:last-child td{border-bottom:none}
     <span class="topbar-badge" id="badge-total">0</span>
     <button class="btn sm" onclick="loadTiendas()" title="Actualizar">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-    </button>
+    </button
+      <button class="btn warn sm" onclick="procesarFotos()" title="Convertir fotos a URL pública" style="margin-left:6px;">
+  🖼️ Convertir fotos
+</button>
     <button class="btn primary sm" onclick="abrirFormNueva()">+ Nueva</button>
   </div>
 
@@ -799,6 +802,32 @@ function fixImg(u) {
 
   // 5. URL normal (https://...) — devolver tal cual
   return u;
+}
+  async function procesarFotos() {
+  var btn = document.activeElement;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  
+  try {
+    var res = await fetch(BACKEND, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action: 'procesar.fotos', token: TOKEN })
+    });
+    var json = await res.json();
+    
+    if (json.ok) {
+      toast('✅ ' + json.message, 'success');
+      loadTiendas();
+    } else {
+      toast('❌ ' + (json.error || 'Error'), 'error');
+    }
+  } catch(e) {
+    toast('❌ Error de conexión', 'error');
+  }
+  
+  btn.disabled = false;
+  btn.innerHTML = '🖼️ Convertir fotos';
 }
 
 function toast(msg, type) {
