@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Directorio Móvil - Tiendas con Servicio a Domicilio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Encabezado */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1a73e8;
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #5f6368;
+            font-size: 1rem;
+        }
+
+        .stats-badge {
+            display: inline-block;
+            background: #1a73e8;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+
+        /* Filtros */
+        .filters {
+            background: white;
+            border-radius: 16px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 28px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            padding: 8px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 28px;
+            background: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 28px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #1557b0;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2rem;
+            color: #5f6368;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a73e8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Grid de tarjetas */
+        .stores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        /* Tarjeta individual */
+        .store-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .store-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-image {
+            height: 180px;
+            background-size: cover;
+            background-position: center;
+            background-color: #f0f2f5;
+            position: relative;
+        }
+
+        .movil-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #34a853;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-content {
+            padding: 18px;
+            flex: 1;
+        }
+
+        .store-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #202124;
+            margin-bottom: 5px;
+        }
+
+        .store-category {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .store-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #3c4043;
+        }
+
+        .store-detail i {
+            width: 20px;
+            color: #5f6368;
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        .store-detail a {
+            color: #1a73e8;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .store-detail a:hover {
+            text-decoration: underline;
+        }
+
+        .schedule {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-actions {
+            padding: 15px 18px;
+            border-top: 1px solid #ecedef;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-contact {
+            flex: 1;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+
+        .btn-contact:hover {
+            opacity: 0.85;
+        }
+
+        .btn-email {
+            flex: 1;
+            background: #ea4335;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+
+        .btn-email:hover {
+            opacity: 0.85;
+        }
+
+        /* Sin resultados */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            color: #5f6368;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #5f6368;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 700px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .stores-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🛵 Tiendas con Servicio Móvil</h1>
+        <p>Negocios que te llevan su producto hasta tu puerta</p>
+        <div class="stats-badge" id="statsBadge">Cargando...</div>
+    </div>
+
+    <div class="filters">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por tienda, cliente o giro...">
+        </div>
+        <div class="filter-group">
+            <select id="categoryFilter">
+                <option value="">📌 Todas las categorías</option>
+            </select>
+            <button class="refresh-btn" id="refreshBtn">⟳ Actualizar</button>
+        </div>
+    </div>
+
+    <div id="storesContainer">
+        <div class="loading">
+            <div class="spinner"></div>
+            Cargando directorio móvil...
+        </div>
+    </div>
+
+    <div class="footer">
+        📍 Tiendas con servicio a domicilio · Horarios sujetos a cambio · Verifica disponibilidad
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // CONFIGURACIÓN - CAMBIA ESTA URL POR LA TUYA
+    // ============================================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwQ_ESx2c-3DL83b_-ujjmvevSBGtwjPZ0e1wEHv3cnLbJOplTJDYUb_UiRVyTYXik/exec';
+    
+    // ============================================================
+    // LÓGICA PRINCIPAL
+    // ============================================================
+    
+    let allStores = [];      // Todas las tiendas recibidas de la API
+    let filteredStores = []; // Tiendas después de filtros (correo + móvil + búsqueda)
+    
+    // Función para normalizar booleanos (por si vienen como string)
+    function isTrue(value) {
+        if (value === true || value === false) return value;
+        if (typeof value === 'string') {
+            return value.toLowerCase() === 'true' || value === '1' || value === 'sí';
+        }
+        return Boolean(value);
+    }
+    
+    // Obtener datos desde la API
+    async function fetchStores() {
+        showLoading(true);
+        try {
+            // Llamamos al endpoint stores.directory
+            const response = await fetch(`${API_URL}?action=stores.directory`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const data = await response.json();
+            
+            if (!data.ok || !data.stores) {
+                throw new Error(data.error || 'Formato de respuesta inválido');
+            }
+            
+            // FILTRADO ESTRICTO: solo tiendas con correo Y movil=true
+            allStores = data.stores.filter(store => {
+                // Verificar que sea una tienda externa (por si acaso)
+                const isExternal = store.isExternal === true;
+                
+                // Obtener valores del config (donde están los datos específicos)
+                const cfg = store.config || {};
+                
+                // CONDICIÓN 1: Tiene correo electrónico (no vacío)
+                const hasEmail = cfg.correo && typeof cfg.correo === 'string' && cfg.correo.trim() !== '';
+                
+                // CONDICIÓN 2: Servicio móvil activo
+                const isMovil = isTrue(cfg.Movil) || isTrue(store.Movil);
+                
+                // Solo mostrar si es externa, tiene correo y móvil activo
+                return isExternal && hasEmail && isMovil;
+            });
+            
+            // Enriquecer los datos para facilitar el renderizado
+            allStores = allStores.map(store => {
+                const cfg = store.config || {};
+                return {
+                    id: store.storeId,
+                    name: store.name || cfg.nombre_tienda || 'Sin nombre',
+                    cliente: cfg.nombreCliente || cfg.nombre_cliente || '',
+                    telefono: cfg.telefono || '',
+                    correo: cfg.correo || '',
+                    categoria: cfg.tipoNegocio || cfg.businessType || 'General',
+                    ubicacion: cfg.ubicate || '',
+                    colonia: cfg.colonia || '',
+                    localidad: cfg.localidad || '',
+                    horario: cfg.horariopromotor || '08:00 - 18:00',
+                    whatsapp: isTrue(cfg.whatsapp),
+                    llegar: isTrue(cfg.llegar),
+                    imageUrl: cfg.logoUrl || cfg.logo || cfg.foto || '',
+                    linkNegocio: cfg.linkNegocio || '',
+                    raw: store
+                };
+            });
+            
+            // Aplicar filtros iniciales
+            applyFilters();
+            
+        } catch (error) {
+            console.error('Error cargando tiendas:', error);
+            document.getElementById('storesContainer').innerHTML = `
+                <div class="no-results">
+                    <strong>⚠️ Error al cargar el directorio</strong><br>
+                    ${error.message}<br><br>
+                    <button onclick="fetchStores()" style="padding:8px 20px;border-radius:30px;border:none;background:#1a73e8;color:white;cursor:pointer">Reintentar</button>
+                </div>
+            `;
+            document.getElementById('statsBadge').innerHTML = '❌ Error de conexión';
+        } finally {
+            showLoading(false);
+        }
+    }
+    
+    // Aplicar filtros de búsqueda y categoría
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+        const category = document.getElementById('categoryFilter').value;
+        
+        filteredStores = allStores.filter(store => {
+            // Filtro por búsqueda (nombre, cliente, categoría, colonia)
+            let matchesSearch = true;
+            if (searchTerm) {
+                matchesSearch = store.name.toLowerCase().includes(searchTerm) ||
+                               store.cliente.toLowerCase().includes(searchTerm) ||
+                               store.categoria.toLowerCase().includes(searchTerm) ||
+                               store.colonia.toLowerCase().includes(searchTerm) ||
+                               store.localidad.toLowerCase().includes(searchTerm);
+            }
+            
+            // Filtro por categoría
+            let matchesCategory = true;
+            if (category && category !== '') {
+                matchesCategory = store.categoria === category;
+            }
+            
+            return matchesSearch && matchesCategory;
+        });
+        
+        // Actualizar contador
+        document.getElementById('statsBadge').innerHTML = `📱 ${filteredStores.length} tiendas con servicio móvil`;
+        
+        // Actualizar select de categorías (solo la primera vez o cuando cambian las tiendas)
+        updateCategoryFilter();
+        
+        // Renderizar
+        renderStores();
+    }
+    
+    // Actualizar el select de categorías con valores únicos
+    function updateCategoryFilter() {
+        const select = document.getElementById('categoryFilter');
+        const currentValue = select.value;
+        
+        const categories = [...new Set(allStores.map(s => s.categoria).filter(c => c && c !== ''))].sort();
+        
+        // Solo actualizar si cambió la lista de categorías (evitar pérdida de selección)
+        const currentOptions = Array.from(select.options).map(o => o.value);
+        const needsUpdate = categories.length !== currentOptions.length - 1 ||
+                            categories.some(c => !currentOptions.includes(c));
+        
+        if (needsUpdate) {
+            select.innerHTML = '<option value="">📌 Todas las categorías</option>';
+            categories.forEach(cat => {
+                select.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+            });
+            select.value = currentValue;
+        }
+    }
+    
+    // Renderizar tarjetas en el grid
+    function renderStores() {
+        const container = document.getElementById('storesContainer');
+        
+        if (filteredStores.length === 0) {
+            container.innerHTML = `
+                <div class="no-results">
+                    🚫 No se encontraron tiendas con servicio móvil<br>
+                    <small>Intenta con otra búsqueda o más tarde aparecerán nuevas opciones</small>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '<div class="stores-grid">';
+        
+        filteredStores.forEach(store => {
+            const imagenFondo = store.imageUrl && store.imageUrl !== '' 
+                ? `background-image: url('${escapeHtml(store.imageUrl)}'); background-size: cover;` 
+                : 'background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+            
+            const whatsappLink = store.telefono ? `https://wa.me/52${store.telefono.replace(/[^0-9]/g, '')}` : '#';
+            const emailLink = store.correo ? `mailto:${store.correo}` : '#';
+            const ubicacionTexto = store.ubicacion || `${store.colonia || ''} ${store.localidad ? '· ' + store.localidad : ''}`;
+            
+            html += `
+                <div class="store-card">
+                    <div class="card-image" style="${imagenFondo}">
+                        <div class="movil-badge">
+                            🛵 Servicio Móvil
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="store-name">${escapeHtml(store.name)}</div>
+                        <div class="store-category">${escapeHtml(store.categoria)}</div>
+                        
+                        ${store.cliente ? `<div class="store-detail"><i>👤</i> ${escapeHtml(store.cliente)}</div>` : ''}
+                        
+                        ${ubicacionTexto ? `<div class="store-detail"><i>📍</i> ${escapeHtml(ubicacionTexto)}</div>` : ''}
+                        
+                        <div class="schedule">
+                            <span>🕐 Horario móvil:</span>
+                            <strong>${escapeHtml(store.horario)}</strong>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        ${store.telefono ? `<a href="${whatsappLink}" target="_blank" class="btn-contact">📱 WhatsApp</a>` : ''}
+                        ${store.correo ? `<a href="${emailLink}" class="btn-email">📧 ${store.correo.split('@')[0]}@...</a>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    // Helper: escapar HTML para evitar inyecciones
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    
+    // Mostrar/ocultar loading
+    function showLoading(isLoading) {
+        if (!isLoading && allStores.length > 0) return;
+        if (isLoading && allStores.length === 0) {
+            document.getElementById('storesContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Cargando directorio móvil...
+                </div>
+            `;
+        }
+    }
+    
+    // Event listeners
+    function bindEvents() {
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('refreshBtn').addEventListener('click', () => fetchStores());
+    }
+    
+    // Inicializar
+    function init() {
+        bindEvents();
+        fetchStores();
+    }
+    
+    // Arrancar
+    init();
+</script>
+</body>
+</html>
