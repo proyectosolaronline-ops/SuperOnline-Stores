@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🛵 Servicio Móvil - Directorio con Lista y Detalles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: #f0f2f5;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: row;
+        }
+
+        /* PANEL IZQUIERDO - LISTA */
+        .list-panel {
+            width: 40%;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .list-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #075E54 0%, #128C7E 100%);
+            color: white;
+        }
+
+        .list-header h1 {
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .list-header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin-top: 6px;
+        }
+
+        .stats-badge {
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px 12px;
+            border-radius: 30px;
+            margin-left: auto;
+            margin-top: 8px;
+        }
+
+        .search-box {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: #128C7E;
+            box-shadow: 0 0 0 3px rgba(18,140,126,0.1);
+        }
+
+        .stores-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .store-item {
+            background: white;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e8e8e8;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .store-item:hover {
+            background: #f8f9fc;
+            transform: translateX(4px);
+            border-color: #128C7E;
+        }
+
+        .store-item.selected {
+            background: #e6f7f4;
+            border-left: 4px solid #128C7E;
+            border-color: #128C7E;
+        }
+
+        .store-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background-size: cover;
+            background-position: center;
+            background-color: #e9ecef;
+            flex-shrink: 0;
+        }
+
+        .store-info {
+            flex: 1;
+        }
+
+        .store-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1e2a3a;
+            margin-bottom: 4px;
+        }
+
+        .store-category {
+            font-size: 0.7rem;
+            color: #128C7E;
+            background: #e6f7f4;
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .store-location {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* PANEL DERECHO - DETALLES */
+        .detail-panel {
+            width: 60%;
+            background: #f8f9fc;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .detail-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #8e9aaf;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .detail-empty span {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .detail-card {
+            background: white;
+            margin: 20px;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .detail-cover {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            background-color: #e9ecef;
+            position: relative;
+        }
+
+        .movil-badge-detail {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #25D366;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .detail-content {
+            padding: 24px;
+        }
+
+        .detail-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e2a3a;
+            margin-bottom: 8px;
+        }
+
+        .detail-category {
+            background: #e6f7f4;
+            color: #128C7E;
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+            gap: 12px;
+        }
+
+        .detail-label {
+            width: 110px;
+            font-weight: 600;
+            color: #4a5568;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: #2d3748;
+            word-break: break-word;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-wa, .btn-email, .btn-map {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            padding: 12px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-wa {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-email {
+            background: #ea4335;
+            color: white;
+        }
+
+        .btn-map {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .btn-wa:hover, .btn-email:hover, .btn-map:hover {
+            opacity: 0.85;
+        }
+
+        .schedule-box {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 14px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .loading, .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #128C7E;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .list-panel, .detail-panel {
+                width: 100%;
+                height: 50vh;
+            }
+            .detail-panel {
+                border-top: 1px solid #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- PANEL IZQUIERDO: LISTA -->
+    <div class="list-panel">
+        <div class="list-header">
+            <h1>
+                <span>🛵</span> Servicio Móvil
+            </h1>
+            <p>Negocios que se mueven hasta donde estés</p>
+            <div class="stats-badge" id="statsBadge">Cargando...</div>
+            <button class="refresh-btn" id="refreshBtn">⟳ Actualizar</button>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre, cliente o giro...">
+        </div>
+        <div class="stores-list" id="storesList">
+            <div class="loading">
+                <div class="spinner"></div>
+                Cargando tiendas...
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL DERECHO: DETALLES -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-empty">
+            <span>📱</span>
+            <h3>Selecciona una tienda</h3>
+            <p>Haz clic en cualquier negocio de la lista para ver sus detalles completos</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // CONFIGURACIÓN
+    // ============================================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwQ_ESx2c-3DL83b_-ujjmvevSBGtwjPZ0e1wEHv3cnLbJOplTJDYUb_UiRVyTYXik/exec';
+    
+    let allStores = [];
+    let filteredStores = [];
+    let selectedStoreId = null;
+    
+    // ============================================================
+    // FUNCIÓN SEGURA PARA CONVERTIR A STRING (EVITA EL ERROR)
+    // ============================================================
+    function safeString(value) {
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number') return value.toString();
+        if (typeof value === 'boolean') return value ? 'true' : 'false';
+        return '';
+    }
+    
+    function escapeHtml(str) {
+        const s = safeString(str);
+        return s.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function isTrue(value) {
+        if (value === true || value === false) return value;
+        const str = safeString(value).toLowerCase();
+        return str === 'true' || str === '1' || str === 'si' || str === 'sí';
+    }
+    
+    function cleanPhone(phone) {
+        const str = safeString(phone);
+        let cleaned = str.replace(/[^0-9]/g, '');
+        if (cleaned.startsWith('52') && cleaned.length === 12) return cleaned;
+        if (cleaned.length === 10) return '52' + cleaned;
+        if (cleaned.length > 0 && !cleaned.startsWith('52')) return '52' + cleaned;
+        return cleaned;
+    }
+    
+    // ============================================================
+    // OBTENER DATOS DE LA API
+    // ============================================================
+    async function fetchStores() {
+        const listContainer = document.getElementById('storesList');
+        listContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando...</div>';
+        
+        try {
+            const response = await fetch(`${API_URL}?action=stores.directory`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            
+            if (!data.ok || !data.stores) {
+                throw new Error(data.error || 'Respuesta inválida');
+            }
+            
+            // FILTRO: externas + móvil true + correo presente
+            allStores = data.stores.filter(store => {
+                const cfg = store.config || {};
+                const isExternal = store.isExternal === true;
+                const hasEmail = safeString(cfg.correo).trim() !== '';
+                const isMovil = isTrue(cfg.Movil) || isTrue(store.Movil);
+                return isExternal && hasEmail && isMovil;
+            });
+            
+            // Enriquecer datos con valores seguros
+            allStores = allStores.map(store => {
+                const cfg = store.config || {};
+                return {
+                    id: safeString(store.storeId),
+                    name: safeString(cfg.nombre_tienda || store.name || 'Sin nombre'),
+                    cliente: safeString(cfg.nombreCliente || cfg.nombre_cliente || ''),
+                    telefono: safeString(cfg.telefono || ''),
+                    correo: safeString(cfg.correo || ''),
+                    categoria: safeString(cfg.tipoNegocio || cfg.businessType || 'General'),
+                    ubicacion: safeString(cfg.ubicate || ''),
+                    colonia: safeString(cfg.colonia || ''),
+                    localidad: safeString(cfg.localidad || ''),
+                    estado: safeString(cfg.estado || ''),
+                    horario: safeString(cfg.horariopromotor || '08:00 - 18:00'),
+                    imageUrl: safeString(cfg.logoUrl || cfg.logo || cfg.foto || ''),
+                    linkNegocio: safeString(cfg.linkNegocio || ''),
+                    locationLat: safeString(cfg.locationLat || ''),
+                    locationLng: safeString(cfg.locationLng || ''),
+                    whatsapp: isTrue(cfg.whatsapp),
+                    llegar: isTrue(cfg.llegar)
+                };
+            });
+            
+            applyFilters();
+            
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('storesList').innerHTML = `
+                <div class="loading">
+                    ⚠️ Error: ${error.message}<br><br>
+                    <button onclick="fetchStores()" style="background:#128C7E;color:white;border:none;padding:8px 20px;border-radius:30px;cursor:pointer">Reintentar</button>
+                </div>
+            `;
+            document.getElementById('statsBadge').innerHTML = '❌ Error';
+        }
+    }
+    
+    // ============================================================
+    // FILTRAR Y RENDERIZAR LISTA
+    // ============================================================
+    function applyFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const searchTerm = searchInput ? safeString(searchInput.value).toLowerCase().trim() : '';
+        
+        filteredStores = allStores.filter(store => {
+            if (!searchTerm) return true;
+            return safeString(store.name).toLowerCase().includes(searchTerm) ||
+                   safeString(store.cliente).toLowerCase().includes(searchTerm) ||
+                   safeString(store.categoria).toLowerCase().includes(searchTerm) ||
+                   safeString(store.colonia).toLowerCase().includes(searchTerm);
+        });
+        
+        const statsBadge = document.getElementById('statsBadge');
+        if (statsBadge) statsBadge.innerHTML = `🛵 ${filteredStores.length} tiendas`;
+        
+        renderList();
+        
+        // Si hay una tienda seleccionada y sigue en la lista filtrada, mantener selección
+        if (selectedStoreId && filteredStores.some(s => s.id === selectedStoreId)) {
+            renderDetail(selectedStoreId);
+        } else if (filteredStores.length > 0) {
+            selectedStoreId = filteredStores[0].id;
+            renderList();
+            renderDetail(selectedStoreId);
+        } else {
+            selectedStoreId = null;
+            renderDetail(null);
+        }
+    }
+    
+    function renderList() {
+        const container = document.getElementById('storesList');
+        if (!container) return;
+        
+        if (filteredStores.length === 0) {
+            container.innerHTML = '<div class="no-results">🚫 No hay tiendas con servicio móvil en este momento</div>';
+            return;
+        }
+        
+        let html = '';
+        for (let i = 0; i < filteredStores.length; i++) {
+            const store = filteredStores[i];
+            const isSelected = selectedStoreId === store.id;
+            const bgImage = store.imageUrl ? `background-image: url('${store.imageUrl}');` : '';
+            const ubicacionCorta = store.colonia || store.localidad || (store.ubicacion ? store.ubicacion.substring(0, 30) : '');
+            
+            html += `
+                <div class="store-item ${isSelected ? 'selected' : ''}" onclick="selectStore('${store.id.replace(/'/g, "\\'")}')">
+                    <div class="store-avatar" style="${bgImage} background-size: cover; background-position: center;"></div>
+                    <div class="store-info">
+                        <div class="store-name">${escapeHtml(store.name)}</div>
+                        <div class="store-category">${escapeHtml(store.categoria)}</div>
+                        ${ubicacionCorta ? `<div class="store-location">📍 ${escapeHtml(ubicacionCorta)}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        container.innerHTML = html;
+    }
+    
+    // ============================================================
+    // RENDERIZAR DETALLES
+    // ============================================================
+    function renderDetail(storeId) {
+        const panel = document.getElementById('detailPanel');
+        if (!panel) return;
+        
+        if (!storeId) {
+            panel.innerHTML = `
+                <div class="detail-empty">
+                    <span>📱</span>
+                    <h3>Selecciona una tienda</h3>
+                    <p>Haz clic en cualquier negocio de la lista para ver sus detalles completos</p>
+                </div>
+            `;
+            return;
+        }
+        
+        const store = allStores.find(s => s.id === storeId);
+        if (!store) return;
+        
+        const bgImage = store.imageUrl ? `background-image: url('${store.imageUrl}');` : 'background-image: linear-gradient(145deg, #128C7E, #075E54);';
+        const waNumber = cleanPhone(store.telefono);
+        const waLink = waNumber ? `https://wa.me/${waNumber}` : '#';
+        const emailLink = store.correo ? `mailto:${store.correo}` : '#';
+        const mapLink = (store.locationLat && store.locationLat !== '' && store.locationLng && store.locationLng !== '') 
+            ? `https://www.google.com/maps?q=${store.locationLat},${store.locationLng}` 
+            : (store.ubicacion ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.ubicacion)}` : '#');
+        
+        const ubicacionCompleta = [store.ubicacion, store.colonia, store.localidad, store.estado].filter(function(v) { 
+            return v && v !== ''; 
+        }).join(', ');
+        
+        panel.innerHTML = `
+            <div class="detail-card">
+                <div class="detail-cover" style="${bgImage} background-size: cover;">
+                    <div class="movil-badge-detail">
+                        🛵 Servicio a domicilio
+                    </div>
+                </div>
+                <div class="detail-content">
+                    <div class="detail-title">${escapeHtml(store.name)}</div>
+                    <div class="detail-category">${escapeHtml(store.categoria)}</div>
+                    
+                    ${store.cliente ? `
+                    <div class="detail-row">
+                        <div class="detail-label">👤 Cliente/Negocio</div>
+                        <div class="detail-value">${escapeHtml(store.cliente)}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${store.telefono ? `
+                    <div class="detail-row">
+                        <div class="detail-label">📞 Teléfono</div>
+                        <div class="detail-value">${escapeHtml(store.telefono)}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${store.correo ? `
+                    <div class="detail-row">
+                        <div class="detail-label">📧 Correo</div>
+                        <div class="detail-value">${escapeHtml(store.correo)}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${ubicacionCompleta ? `
+                    <div class="detail-row">
+                        <div class="detail-label">📍 Ubicación</div>
+                        <div class="detail-value">${escapeHtml(ubicacionCompleta)}</div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="schedule-box">
+                        <span>🕐</span> Horario de servicio móvil: <strong>${escapeHtml(store.horario)}</strong>
+                    </div>
+                    
+                    ${store.linkNegocio ? `
+                    <div class="detail-row">
+                        <div class="detail-label">🔗 Sitio web</div>
+                        <div class="detail-value"><a href="${escapeHtml(store.linkNegocio)}" target="_blank" style="color:#128C7E;">${escapeHtml(store.linkNegocio)}</a></div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="detail-actions">
+                        ${store.telefono ? `<a href="${waLink}" target="_blank" class="btn-wa">📱 WhatsApp</a>` : ''}
+                        ${store.correo ? `<a href="${emailLink}" class="btn-email">📧 Enviar correo</a>` : ''}
+                        <a href="${mapLink}" target="_blank" class="btn-map">🗺️ Ver mapa</a>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // ============================================================
+    // SELECCIÓN DE TIENDA
+    // ============================================================
+    window.selectStore = function(storeId) {
+        selectedStoreId = storeId;
+        renderList();
+        renderDetail(storeId);
+    };
+    
+    // ============================================================
+    // EVENTOS E INICIO
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+        
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() { fetchStores(); });
+        }
+        
+        fetchStores();
+    });
+</script>
+</body>
+</html>
