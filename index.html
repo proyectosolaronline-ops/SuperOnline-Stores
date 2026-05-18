@@ -993,7 +993,6 @@ function openStoreDetail(storeId) {
     + '<button class="btn primary sm" data-id="'+s.storeId+'" onclick="saveLKCode(this.dataset.id)">Guardar</button>'
     + '<button class="btn wa sm" data-id="'+s.storeId+'" onclick="sendLKWhatsApp(this.dataset.id)">Enviar WA</button>'
     + '</div></div>'
-    //* ayuda deepseek*//
     // ── NUEVO BLOQUE: COBROS A CRÉDITO ──
     + '<div style="margin-bottom:20px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">'
@@ -1001,7 +1000,6 @@ function openStoreDetail(storeId) {
     + '<div style="font-size:11px;color:var(--muted)">Habilitar sistema de pagos a crédito</div></div>'
     + '<button class="btn ' + ((cfg.allowCobros === true || cfg.allowCobros === 'true') ? 'primary' : '') + '" id="btn-cobros-' + s.storeId + '" data-id="' + s.storeId + '" onclick="toggleAllowCobros(this.dataset.id)">'
     + ((cfg.allowCobros === true || cfg.allowCobros === 'true') ? '✓ Activado' : '➕ Activar Cobros')
-    //*termina ayuda deepseek*//
     + '</button></div></div>';
 
   if (isAdmin1) {
