@@ -458,10 +458,29 @@ function abrirFormNueva() {
   document.getElementById('form-title').textContent = 'Nueva tienda externa';
   document.getElementById('btn-guardar').textContent = 'Guardar';
   limpiarForm();
+
+  var quiereVincular = confirm(
+    '¿Quieres vincular esta tienda con una tienda EasyLink existente?\n\n' +
+    '✅ SÍ  = Se cargarán los datos automáticamente desde tu tienda EasyLink\n' +
+    '❌ NO  = Registro manual para cualquier otro negocio'
+  );
+
+  if (quiereVincular) {
+    obtenerTiendasEasyLinkDisponibles().then(function(tiendas) {
+      if (tiendas.length === 0) {
+        toast('No hay tiendas EasyLink disponibles para vincular', 'warn');
+      } else {
+        var seleccionada = mostrarSelectorEasyLink(tiendas);
+        if (seleccionada) {
+          autoCompletarDesdeEasyLink(seleccionada);
+        }
+      }
+    });
+  }
+
   document.getElementById('modal-form').classList.add('open');
   setTimeout(iniciarFormMap, 300);
 }
-
 function editarTienda(id) {
   var t = ALL_TIENDAS.find(function(x){ return x.storeId === id; });
   if (!t) return;
@@ -834,7 +853,76 @@ function toast(msg, type) {
   el.textContent = msg; el.className = type || 'success'; el.style.display = 'block';
   clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display = 'none'; }, 3500);
 }
+/* ── VÍNCULO CON EASYLINK ── */
+async function obtenerTiendasEasyLinkDisponibles() {
+  var TOKEN = localStorage.getItem('lk_token') || '';
+  if (!TOKEN) {
+    toast('Inicia sesión en el Panel Maestro primero', 'error');
+    return [];
+  }
+  try {
+    var res = await fetch(BACKEND, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'external.easylink.available', token: TOKEN })
+    });
+    var data = await res.json();
+    if (data.ok && data.disponibles && data.disponibles.length > 0) {
+      return data.disponibles;
+    }
+    return [];
+  } catch(e) {
+    toast('Error al obtener tiendas EasyLink', 'error');
+    return [];
+  }
+}
 
+function mostrarSelectorEasyLink(tiendas) {
+  var lista = tiendas.map(function(t, i) {
+    return (i + 1) + '. ' + t.name + ' (' + (t.storeLocation || t.businessType || 'Sin ubicación') + ')';
+  }).join('\n');
+
+  var seleccion = prompt(
+    '📦 Tiendas EasyLink disponibles para vincular:\n\n' +
+    lista +
+    '\n\nEscribe el número de la tienda (o 0 para cancelar):'
+  );
+
+  if (seleccion === null || seleccion === '0' || seleccion === '') return null;
+
+  var index = parseInt(seleccion) - 1;
+  if (index >= 0 && index < tiendas.length) {
+    return tiendas[index];
+  }
+  return null;
+}
+
+function autoCompletarDesdeEasyLink(tienda) {
+  document.getElementById('f-nombre-tienda').value  = tienda.name || '';
+  document.getElementById('f-telefono').value       = tienda.whatsapp || '';
+  document.getElementById('f-tipo-negocio').value   = tienda.businessType || '';
+
+  var storeUrl = 'https://proyectosolaronline-ops.github.io/superOnline-Tienda/index.html' +
+    '?backend=' + encodeURIComponent(BACKEND) +
+    '&store=' + tienda.storeId;
+
+  document.getElementById('f-link').value = storeUrl;
+
+  if (tienda.locationLat && tienda.locationLng) {
+    document.getElementById('f-lat').value = tienda.locationLat;
+    document.getElementById('f-lng').value = tienda.locationLng;
+    sincronizarInputsVis(tienda.locationLat, tienda.locationLng);
+    if (formMap) {
+      setMapPin(parseFloat(tienda.locationLat), parseFloat(tienda.locationLng));
+    }
+  }
+
+  if (tienda.storeLocation) {
+    document.getElementById('f-localidad').value = tienda.storeLocation;
+  }
+
+  toast('✅ Datos de ' + tienda.name + ' cargados automáticamente', 'success');
+}
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
 });
