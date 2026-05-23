@@ -1,3 +1,4 @@
+//-- version 1
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -453,34 +454,7 @@ function abrirDetalle(id) {
 function cerrarDetalle() { document.getElementById('modal-detalle').classList.remove('open'); }
 
 /* ── FORMULARIO ── */
-function abrirFormNueva() {
-  EDITING_ID = null;
-  document.getElementById('form-title').textContent = 'Nueva tienda externa';
-  document.getElementById('btn-guardar').textContent = 'Guardar';
-  limpiarForm();
 
-  var quiereVincular = confirm(
-    '¿Quieres vincular esta tienda con una tienda EasyLink existente?\n\n' +
-    '✅ SÍ  = Se cargarán los datos automáticamente desde tu tienda EasyLink\n' +
-    '❌ NO  = Registro manual para cualquier otro negocio'
-  );
-
-  if (quiereVincular) {
-    obtenerTiendasEasyLinkDisponibles().then(function(tiendas) {
-      if (tiendas.length === 0) {
-        toast('No hay tiendas EasyLink disponibles para vincular', 'warn');
-      } else {
-        var seleccionada = mostrarSelectorEasyLink(tiendas);
-        if (seleccionada) {
-          autoCompletarDesdeEasyLink(seleccionada);
-        }
-      }
-    });
-  }
-
-  document.getElementById('modal-form').classList.add('open');
-  setTimeout(iniciarFormMap, 300);
-}
 function editarTienda(id) {
   var t = ALL_TIENDAS.find(function(x){ return x.storeId === id; });
   if (!t) return;
@@ -877,26 +851,99 @@ async function obtenerTiendasEasyLinkDisponibles() {
   }
 }
 
-function mostrarSelectorEasyLink(tiendas) {
-  var lista = tiendas.map(function(t, i) {
-    return (i + 1) + '. ' + t.name + ' (' + (t.storeLocation || t.businessType || 'Sin ubicación') + ')';
-  }).join('\n');
+/* ── SELECTOR VISUAL DE TIENDAS EASYLINK ── */
+function renderizarSelectorEasyLink(tiendas) {
+  var contenedor = document.getElementById('easylink-selector-list');
+  if (!contenedor) return;
 
-  var seleccion = prompt(
-    '📦 Tiendas EasyLink disponibles para vincular:\n\n' +
-    lista +
-    '\n\nEscribe el número de la tienda (o 0 para cancelar):'
-  );
-
-  if (seleccion === null || seleccion === '0' || seleccion === '') return null;
-
-  var index = parseInt(seleccion) - 1;
-  if (index >= 0 && index < tiendas.length) {
-    return tiendas[index];
+  if (tiendas.length === 0) {
+    contenedor.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No hay tiendas EasyLink disponibles</div>';
+    return;
   }
-  return null;
+
+  contenedor.innerHTML = tiendas.map(function(t, i) {
+    return '<div class="easylink-item" data-index="' + i + '" onclick="seleccionarTiendaEasyLink(' + i + ')" style="' +
+      'padding:12px 14px;' +
+      'border-bottom:1px solid var(--border);' +
+      'cursor:pointer;' +
+      'transition:background .15s;' +
+      'display:flex;align-items:center;gap:10px;' +
+      '" onmouseover="this.style.background=\'var(--surface2)\'" ' +
+      'onmouseout="this.style.background=\'\'">' +
+      '<div style="' +
+        'width:36px;height:36px;' +
+        'border-radius:8px;' +
+        'background:var(--accent);' +
+        'color:#fff;' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'font-size:16px;font-weight:700;flex-shrink:0;' +
+      '">' + (t.name || '?')[0].toUpperCase() + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(t.name) + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+          (t.storeLocation || t.businessType || 'Sin ubicación') +
+        '</div>' +
+      '</div>' +
+      '<div style="font-size:18px;color:var(--muted);flex-shrink:0">›</div>' +
+    '</div>';
+  }).join('');
 }
 
+// Variable global para guardar las tiendas disponibles
+var _tiendasEasyLinkDisponibles = [];
+
+function seleccionarTiendaEasyLink(index) {
+  var tienda = _tiendasEasyLinkDisponibles[index];
+  if (!tienda) return;
+  autoCompletarDesdeEasyLink(tienda);
+
+  // Ocultar el selector después de seleccionar
+  var wrapper = document.getElementById('easylink-selector-wrapper');
+  if (wrapper) wrapper.style.display = 'none';
+
+  toast('✅ Vinculado con ' + tienda.name, 'success');
+}
+
+/* ── NUEVA VERSIÓN DE abrirFormNueva ── */
+function abrirFormNueva() {
+  EDITING_ID = null;
+  document.getElementById('form-title').textContent = 'Nueva tienda externa';
+  document.getElementById('btn-guardar').textContent = 'Guardar';
+  limpiarForm();
+
+  var quiereVincular = confirm(
+    '¿Quieres vincular esta tienda con una tienda EasyLink existente?\n\n' +
+    '✅ SÍ  = Se cargarán los datos automáticamente desde tu tienda EasyLink\n' +
+    '❌ NO  = Registro manual para cualquier otro negocio'
+  );
+
+  if (quiereVincular) {
+    obtenerTiendasEasyLinkDisponibles().then(function(tiendas) {
+      _tiendasEasyLinkDisponibles = tiendas;
+
+      var wrapper = document.getElementById('easylink-selector-wrapper');
+      var lista   = document.getElementById('easylink-selector-list');
+
+      if (wrapper && lista) {
+        if (tiendas.length === 0) {
+          wrapper.style.display = 'block';
+          lista.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No hay tiendas EasyLink disponibles para vincular</div>';
+        } else {
+          wrapper.style.display = 'block';
+          renderizarSelectorEasyLink(tiendas);
+        }
+      }
+    });
+  } else {
+    // Ocultar selector si dice NO
+    var wrapper = document.getElementById('easylink-selector-wrapper');
+    if (wrapper) wrapper.style.display = 'none';
+    _tiendasEasyLinkDisponibles = [];
+  }
+
+  document.getElementById('modal-form').classList.add('open');
+  setTimeout(iniciarFormMap, 300);
+}
 function autoCompletarDesdeEasyLink(tienda) {
   document.getElementById('f-nombre-tienda').value  = tienda.name || '';
   document.getElementById('f-telefono').value       = tienda.whatsapp || '';
