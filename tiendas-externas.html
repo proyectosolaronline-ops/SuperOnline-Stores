@@ -1,4 +1,4 @@
-//-- version 1
+//-- version 2
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -219,6 +219,21 @@ tr:last-child td{border-bottom:none}
         <label>Link del negocio (opcional)</label>
         <input id="f-link" type="url" placeholder="https://instagram.com/minegocio" autocomplete="off">
       </div>
+      <!-- SELECTOR EASYLINK -->
+      <div id="easylink-selector-wrapper" style="display:none;margin-bottom:4px">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
+          📦 Tiendas EasyLink disponibles
+        </div>
+        <div id="easylink-selector-list" style="
+          max-height:220px;
+          overflow-y:auto;
+          border:1.5px solid var(--border);
+          border-radius:10px;
+          background:var(--surface);
+        "></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">↑↓ Desliza para ver más · Click para seleccionar</div>
+      </div>
+      
       <div class="field">
         <label>Tipo de negocio / Qué vende</label>
         <input id="f-tipo-negocio" placeholder="Ej: Tacos, Ropa, Electrónica..." autocomplete="off">
