@@ -1,4 +1,4 @@
-//-- version 2 error
+//-- version 2 error ???
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -220,19 +220,6 @@ tr:last-child td{border-bottom:none}
         <input id="f-link" type="url" placeholder="https://instagram.com/minegocio" autocomplete="off">
       </div>
       <!-- SELECTOR EASYLINK -->
-      <div id="easylink-selector-wrapper" style="display:none;margin-bottom:4px">
-        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">
-          📦 Tiendas EasyLink disponibles
-        </div>
-        <div id="easylink-selector-list" style="
-          max-height:220px;
-          overflow-y:auto;
-          border:1.5px solid var(--border);
-          border-radius:10px;
-          background:var(--surface);
-        "></div>
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">↑↓ Desliza para ver más · Click para seleccionar</div>
-      </div>
       
       <div class="field">
         <label>Tipo de negocio / Qué vende</label>
@@ -325,6 +312,26 @@ tr:last-child td{border-bottom:none}
   </div>
 </div>
 
+
+<!-- MODAL SELECTOR EASYLINK -->
+<div class="overlay" id="modal-easylink">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-hdr">
+      <div class="modal-title">📦 Tiendas EasyLink disponibles</div>
+      <button class="btn ghost sm" onclick="cerrarSelectorEasyLink()">✕</button>
+    </div>
+    <div class="modal-body" style="gap:10px;">
+      <input class="search-input" id="easylink-search" placeholder="🔍 Buscar tienda..." oninput="filtrarSelectorEasyLink()" style="margin-bottom:0;">
+      <div id="easylink-popup-list" style="max-height:350px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn full" onclick="cerrarSelectorEasyLink()">Cancelar</button>
+      <button class="btn primary full" id="btn-confirmar-easylink" onclick="confirmarSeleccionEasyLink()" disabled>Aceptar</button>
+    </div>
+  </div>
+</div>
+
+  
 <div id="toast"></div>
 
 <script>
@@ -843,6 +850,7 @@ function toast(msg, type) {
   clearTimeout(el._t); el._t = setTimeout(function(){ el.style.display = 'none'; }, 3500);
 }
 /* ── VÍNCULO CON EASYLINK ── */
+/* ── VÍNCULO CON EASYLINK ── */
 async function obtenerTiendasEasyLinkDisponibles() {
   var TOKEN = localStorage.getItem('lk_token') || '';
   if (!TOKEN) {
@@ -866,99 +874,116 @@ async function obtenerTiendasEasyLinkDisponibles() {
   }
 }
 
-/* ── SELECTOR VISUAL DE TIENDAS EASYLINK ── */
-function renderizarSelectorEasyLink(tiendas) {
-  var contenedor = document.getElementById('easylink-selector-list');
+/* ── SELECTOR POPUP EASYLINK ── */
+var _tiendasEasyLinkDisponibles = [];
+var _tiendaEasyLinkSeleccionada = null;
+
+function renderizarPopupEasyLink(tiendas) {
+  var contenedor = document.getElementById('easylink-popup-list');
   if (!contenedor) return;
 
   if (tiendas.length === 0) {
-    contenedor.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">No hay tiendas EasyLink disponibles</div>';
+    contenedor.innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">No hay tiendas EasyLink disponibles</div>';
+    document.getElementById('btn-confirmar-easylink').disabled = true;
     return;
   }
 
-  contenedor.innerHTML = tiendas.map(function(t, i) {
-    return '<div class="easylink-item" data-index="' + i + '" onclick="seleccionarTiendaEasyLink(' + i + ')" style="' +
-      'padding:12px 14px;' +
-      'border-bottom:1px solid var(--border);' +
-      'cursor:pointer;' +
-      'transition:background .15s;' +
-      'display:flex;align-items:center;gap:10px;' +
-      '" onmouseover="this.style.background=\'var(--surface2)\'" ' +
-      'onmouseout="this.style.background=\'\'">' +
-      '<div style="' +
-        'width:36px;height:36px;' +
-        'border-radius:8px;' +
-        'background:var(--accent);' +
-        'color:#fff;' +
-        'display:flex;align-items:center;justify-content:center;' +
-        'font-size:16px;font-weight:700;flex-shrink:0;' +
-      '">' + (t.name || '?')[0].toUpperCase() + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(t.name) + '</div>' +
-        '<div style="font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
-          (t.storeLocation || t.businessType || 'Sin ubicación') +
-        '</div>' +
-      '</div>' +
-      '<div style="font-size:18px;color:var(--muted);flex-shrink:0">›</div>' +
-    '</div>';
-  }).join('');
+  _tiendaEasyLinkSeleccionada = null;
+  document.getElementById('btn-confirmar-easylink').disabled = true;
+
+  contenedor.innerHTML = '<table style="width:100%;border-collapse:collapse;">' +
+    '<thead><tr>' +
+    '<th style="width:30px;"></th>' +
+    '<th>Nombre</th>' +
+    '<th>Ubicación</th>' +
+    '<th>Tipo</th>' +
+    '</tr></thead><tbody>' +
+    tiendas.map(function(t, i) {
+      return '<tr class="easylink-row" data-index="' + i + '" onclick="seleccionarFilaEasyLink(' + i + ', this)" style="cursor:pointer;transition:background .15s;">' +
+        '<td style="text-align:center;"><span class="easylink-radio" id="easylink-radio-' + i + '" style="display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid var(--border);"></span></td>' +
+        '<td style="font-weight:600;">' + esc(t.name) + '</td>' +
+        '<td style="font-size:12px;color:var(--muted);">' + esc(t.storeLocation || '—') + '</td>' +
+        '<td><span class="badge activo">' + esc(t.businessType || 'regular') + '</span></td>' +
+      '</tr>';
+    }).join('') +
+    '</tbody></table>';
+
+  document.querySelectorAll('.easylink-row').forEach(function(row) {
+    row.addEventListener('mouseover', function() { if (!this.classList.contains('selected')) this.style.background = 'var(--surface2)'; });
+    row.addEventListener('mouseout', function() { if (!this.classList.contains('selected')) this.style.background = ''; });
+  });
 }
 
-// Variable global para guardar las tiendas disponibles
-var _tiendasEasyLinkDisponibles = [];
-
-function seleccionarTiendaEasyLink(index) {
-  var tienda = _tiendasEasyLinkDisponibles[index];
-  if (!tienda) return;
-  autoCompletarDesdeEasyLink(tienda);
-
-  // Ocultar el selector después de seleccionar
-  var wrapper = document.getElementById('easylink-selector-wrapper');
-  if (wrapper) wrapper.style.display = 'none';
-
-  toast('✅ Vinculado con ' + tienda.name, 'success');
+function seleccionarFilaEasyLink(index, row) {
+  _tiendaEasyLinkSeleccionada = _tiendasEasyLinkDisponibles[index];
+  document.querySelectorAll('.easylink-row').forEach(function(r) {
+    r.classList.remove('selected');
+    r.style.background = '';
+  });
+  row.classList.add('selected');
+  row.style.background = '#e8e0ff';
+  document.querySelectorAll('.easylink-radio').forEach(function(r) {
+    r.style.border = '2px solid var(--border)';
+    r.style.background = '';
+  });
+  var radio = document.getElementById('easylink-radio-' + index);
+  if (radio) {
+    radio.style.border = '2px solid var(--accent)';
+    radio.style.background = 'var(--accent)';
+  }
+  document.getElementById('btn-confirmar-easylink').disabled = false;
 }
 
-/* ── NUEVA VERSIÓN DE abrirFormNueva ── */
+function filtrarSelectorEasyLink() {
+  var q = (document.getElementById('easylink-search').value || '').toLowerCase();
+  var filtradas = q
+    ? _tiendasEasyLinkDisponibles.filter(function(t) {
+        return (t.name || '').toLowerCase().includes(q)
+            || (t.storeLocation || '').toLowerCase().includes(q)
+            || (t.businessType || '').toLowerCase().includes(q);
+      })
+    : _tiendasEasyLinkDisponibles;
+  renderizarPopupEasyLink(filtradas);
+}
+
+function confirmarSeleccionEasyLink() {
+  if (!_tiendaEasyLinkSeleccionada) return;
+  autoCompletarDesdeEasyLink(_tiendaEasyLinkSeleccionada);
+  cerrarSelectorEasyLink();
+}
+
+function cerrarSelectorEasyLink() {
+  document.getElementById('modal-easylink').classList.remove('open');
+  document.getElementById('easylink-search').value = '';
+}
+
 function abrirFormNueva() {
   EDITING_ID = null;
   document.getElementById('form-title').textContent = 'Nueva tienda externa';
   document.getElementById('btn-guardar').textContent = 'Guardar';
   limpiarForm();
+  _tiendasEasyLinkDisponibles = [];
+  _tiendaEasyLinkSeleccionada = null;
 
   var quiereVincular = confirm(
     '¿Quieres vincular esta tienda con una tienda EasyLink existente?\n\n' +
-    '✅ SÍ  = Se cargarán los datos automáticamente desde tu tienda EasyLink\n' +
-    '❌ NO  = Registro manual para cualquier otro negocio'
+    'SI = Se cargaran los datos automaticamente\n' +
+    'NO = Registro manual'
   );
 
   if (quiereVincular) {
     obtenerTiendasEasyLinkDisponibles().then(function(tiendas) {
       _tiendasEasyLinkDisponibles = tiendas;
-
-      var wrapper = document.getElementById('easylink-selector-wrapper');
-      var lista   = document.getElementById('easylink-selector-list');
-
-      if (wrapper && lista) {
-        if (tiendas.length === 0) {
-          wrapper.style.display = 'block';
-          lista.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No hay tiendas EasyLink disponibles para vincular</div>';
-        } else {
-          wrapper.style.display = 'block';
-          renderizarSelectorEasyLink(tiendas);
-        }
-      }
+      document.getElementById('easylink-search').value = '';
+      renderizarPopupEasyLink(tiendas);
+      document.getElementById('modal-easylink').classList.add('open');
     });
-  } else {
-    // Ocultar selector si dice NO
-    var wrapper = document.getElementById('easylink-selector-wrapper');
-    if (wrapper) wrapper.style.display = 'none';
-    _tiendasEasyLinkDisponibles = [];
   }
 
   document.getElementById('modal-form').classList.add('open');
   setTimeout(iniciarFormMap, 300);
 }
+
 function autoCompletarDesdeEasyLink(tienda) {
   document.getElementById('f-nombre-tienda').value  = tienda.name || '';
   document.getElementById('f-telefono').value       = tienda.whatsapp || '';
@@ -983,7 +1008,7 @@ function autoCompletarDesdeEasyLink(tienda) {
     document.getElementById('f-localidad').value = tienda.storeLocation;
   }
 
-  toast('✅ Datos de ' + tienda.name + ' cargados automáticamente', 'success');
+  toast('Datos de ' + tienda.name + ' cargados', 'success');
 }
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
