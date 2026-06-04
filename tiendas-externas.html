@@ -982,24 +982,30 @@ function abrirFormNueva() {
   document.getElementById('modal-form').classList.add('open');
   setTimeout(iniciarFormMap, 300);
 }
-
 function autoCompletarDesdeEasyLink(tienda) {
-  document.getElementById('f-nombre-tienda').value  = tienda.name || '';
-  document.getElementById('f-telefono').value       = tienda.whatsapp || '';
-  document.getElementById('f-tipo-negocio').value   = tienda.businessType || '';
+  document.getElementById('f-nombre-tienda').value = tienda.name || '';
+  document.getElementById('f-telefono').value      = tienda.whatsapp || '';
+  document.getElementById('f-tipo-negocio').value  = tienda.businessType || '';
 
   var storeUrl = 'https://proyectosolaronline-ops.github.io/superOnline-Tienda/index.html' +
     '?backend=' + encodeURIComponent(BACKEND) +
     '&store=' + tienda.storeId;
-
   document.getElementById('f-link').value = storeUrl;
 
   if (tienda.locationLat && tienda.locationLng) {
+    // Guardar en los hidden inputs siempre
     document.getElementById('f-lat').value = tienda.locationLat;
     document.getElementById('f-lng').value = tienda.locationLng;
     sincronizarInputsVis(tienda.locationLat, tienda.locationLng);
+
+    // Aplicar al mapa: si ya existe úsalo; si no, esperar a que iniciarFormMap lo cree
     if (formMap) {
       setMapPin(parseFloat(tienda.locationLat), parseFloat(tienda.locationLng));
+    } else {
+      // El mapa se crea 300ms después; esperar un poco más y aplicar
+      setTimeout(function() {
+        if (formMap) setMapPin(parseFloat(tienda.locationLat), parseFloat(tienda.locationLng));
+      }, 500);
     }
   }
 
@@ -1009,6 +1015,7 @@ function autoCompletarDesdeEasyLink(tienda) {
 
   toast('Datos de ' + tienda.name + ' cargados', 'success');
 }
+
 document.querySelectorAll('.overlay').forEach(function(o){
   o.addEventListener('click', function(e){ if (e.target === this) this.classList.remove('open'); });
 });
